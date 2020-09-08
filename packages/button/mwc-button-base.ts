@@ -92,7 +92,13 @@ export class ButtonBase extends LitElement {
     });
   }
 
-  /** @soyCompatible */
+  /**
+   * @soyCompatible
+   *
+   * @soyAttributes buttonAttributes: #button
+   *
+   * @soyClasses buttonClasses: #button
+   */
   protected render() {
     return html`
       <button

@@ -89,6 +89,26 @@ $light-theme: (
     --mdc-button-disabled-ink-color,
     map.get($text, label-disabled-color)
   );
+  .mdc-button {
+    &:hover {
+      @include css.declaration(
+        --mdc-theme-primary,
+        map.get($text, label-color-hover)
+      );
+    }
+    &:focus {
+      @include css.declaration(
+        --mdc-theme-primary,
+        map.get($text, label-color-focus)
+      );
+    }
+    &:active {
+      @include css.declaration(
+        --mdc-theme-primary,
+        map.get($text, label-color-pressed)
+      );
+    }
+  }
   // TODO(dfreedm): infer ripple opacities from label-color
   @include ripple-theme.theme(
     (

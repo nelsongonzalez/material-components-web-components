@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import {BaseElement, observer} from '@material/mwc-base/form-element.js';
-import {addHasRemoveClass, isRTL} from '@material/mwc-base/utils.js';
+import {addHasRemoveClass} from '@material/mwc-base/utils.js';
 import {MDCChipInteractionEvent, MDCChipSelectionEvent, MDCChipRemovalEvent, MDCChipNavigationEvent} from '@material/chips/chip/types';
 import {MDCChipSetAdapter} from '@material/chips/chip-set/adapter.js';
 import {MDCChipSetFoundation} from '@material/chips/chip-set/foundation.js';
@@ -91,7 +91,7 @@ export class ChipSetBase extends BaseElement {
           this.chipsArray[index].removeFocus();
         }
       },
-      isRTL: () => isRTL(this.mdcRoot),
+      isRTL: () => getComputedStyle(this.mdcRoot).direction === 'rtl',
       getChipListCount: () => this.chipsArray.length
     };
   }

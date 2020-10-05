@@ -26,7 +26,6 @@ import {MDCTabBarAdapter} from '@material/tab-bar/adapter';
 import MDCTabBarFoundation from '@material/tab-bar/foundation';
 import {MDCTabInteractionEvent} from '@material/tab/types';
 import {html, property, query} from 'lit-element';
-import {isRTL} from '@material/mwc-base/src/utils';
 
 export class TabBarBase extends BaseElement {
   protected mdcFoundation!: MDCTabBarFoundation;
@@ -97,7 +96,7 @@ export class TabBarBase extends BaseElement {
       getScrollPosition: () => this.scrollerElement.getScrollPosition(),
       getScrollContentWidth: () => this.scrollerElement.getScrollContentWidth(),
       getOffsetWidth: () => this.mdcRoot.offsetWidth,
-      isRTL: () => isRTL(this.mdcRoot),
+      isRTL: () => getComputedStyle(this.mdcRoot).direction === 'rtl',
       setActiveTab: (index: number) => this.mdcFoundation.activateTab(index),
       activateTabAtIndex: (index: number, clientRect: ClientRect) => {
         const tab = this._getTab(index);

@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import {BaseElement, observer} from '@material/mwc-base/form-element.js';
-import {addHasRemoveClass, isRTL} from '@material/mwc-base/utils.js';
+import {addHasRemoveClass} from '@material/mwc-base/utils.js';
 import {ripple} from '@material/mwc-ripple/ripple-directive.js';
 import {MDCChipAdapter} from '@material/chips/chip/adapter.js';
 import {MDCChipFoundation} from '@material/chips/chip/foundation.js';
@@ -144,7 +144,7 @@ export class ChipBase extends BaseElement {
           this.trailingActionElement.focus();
         }
       },
-      isRTL: () => isRTL(this.mdcRoot)
+      isRTL: () => getComputedStyle(this.mdcRoot).direction === 'rtl'
     };
   }
 

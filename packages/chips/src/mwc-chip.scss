@@ -40,3 +40,17 @@ limitations under the License.
 .mdc-chip-set--filter .mdc-chip--selected .mdc-chip__icon--leading {
   display: none;
 }
+
+.mdc-chip__checkmark-path {
+  stroke: var(--mdc-theme-secondary);
+}
+
+.mdc-chip {
+  background-color: var(--mdc-theme-surface);
+  color: var(--mdc-theme-on-surface);
+  font-family: var(--mdc-typography-font-family);
+}
+
+.mdc-chip.mdc-chip--selected .mdc-chip__checkmark, .mdc-chip .mdc-chip__icon--leading:not(.mdc-chip__icon--leading-hidden) {
+  color: var(--mdc-theme-secondary);
+}

@@ -35,13 +35,20 @@ export class ChipBase extends BaseElement {
   @property({reflect: true})
   type?: ChipType;
   @property({type: Boolean})
+  @observer(function(this: ChipBase, value: boolean) {
+    this._selected = value;
+    this.mdcFoundation.setSelected(value);
+  })
+  checked = false;
+
+  @property({type: Boolean})
   get selected() {
     return this._selected;
   }
 
   set selected(selected) {
     this._selected = selected;
-    this.mdcFoundation.setSelected(selected);
+    // this.mdcFoundation.setSelected(selected);
   }
 
   private _selected = false;

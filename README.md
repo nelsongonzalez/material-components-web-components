@@ -258,3 +258,6 @@ npm run test:debug -- --autoWatch --packages <comma sepaarated package names> # 
 
 npm publish packages/top-app-bar
 npm publish packages/top-app-bar-fixed
+npm publish packages/card
+npm publish packages/card-media
+npm publish packages/card-primary-action

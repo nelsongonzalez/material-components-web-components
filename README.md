@@ -253,3 +253,8 @@ npm run watch:tests
 # another terminal (persistent) - debug tests
 npm run test:debug -- --autoWatch --packages <comma sepaarated package names> # e.g. mwc-switch,mwc-text*
 ```
+
+## Publish
+
+npm publish packages/top-app-bar
+npm publish packages/top-app-bar-fixed

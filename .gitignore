@@ -16,3 +16,5 @@ node_modules
 /scripts/tsc-out/
 .vscode
 /dist
+.npmrc
+.yarnrc

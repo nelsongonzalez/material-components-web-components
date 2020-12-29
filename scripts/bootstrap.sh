@@ -25,6 +25,9 @@ packages=(`find packages -name "package.json" -maxdepth 2 | xargs -I '{}' dirnam
 
 for package in ${packages[@]}; do
   npmname=`node -e "console.log(require(\"${INIT_CWD}/${package}/package.json\").name)"`
+  if [[ $npmname == *"nelsongonzalez"* ]]; then
+    npmname=${npmname//nelsongonzalez/material}
+  fi
   if [ ! -L ${INIT_CWD}/node_modules/${npmname} ]; then
     ln -sfv ${INIT_CWD}/${package} ${INIT_CWD}/node_modules/${npmname}
   fi

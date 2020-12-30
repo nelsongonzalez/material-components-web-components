@@ -19,6 +19,7 @@ import {customElement} from 'lit-element';
 import {ChipSetBase} from './mwc-chip-set-base.js';
 import {style} from './mwc-chip-css.js'; // TODO: split chip-set and chip styles in MDC
 
+/** @soyCompatible */
 @customElement('mwc-chip-set')
 export class ChipSet extends ChipSetBase {
   static styles = style;

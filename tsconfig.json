@@ -61,6 +61,7 @@
     {"path": "packages/base"},
     {"path": "packages/button"},
     {"path": "packages/checkbox"},
+    {"path": "packages/chips"},
     {"path": "packages/circular-progress"},
     {"path": "packages/circular-progress-four-color"},
     {"path": "packages/dialog"},

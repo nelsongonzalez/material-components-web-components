@@ -14,7 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import {BaseElement, observer} from '@material/mwc-base/form-element.js';
+import {BaseElement} from '@material/mwc-base/base-element';
+import {observer} from '@material/mwc-base/observer';
 import {addHasRemoveClass} from '@material/mwc-base/utils.js';
 import {ripple} from '@material/mwc-ripple/ripple-directive.js';
 import {MDCChipAdapter} from '@material/chips/chip/adapter.js';
@@ -140,17 +141,22 @@ export class ChipBase extends BaseElement {
           this.primaryActionElement.focus();
         }
       },
-      hasTrailingAction: () => !!this.trailingActionElement,
-      setTrailingActionAttr: (attr, value) => {
+      // hasTrailingAction: () => !!this.trailingActionElement,
+      /* setTrailingActionAttr: (attr, value) => {
         if (this.trailingActionElement) {
           this.trailingActionElement.setAttribute(attr, value);
         }
-      },
+      }, */
       focusTrailingAction: () => {
         if (this.trailingActionElement) {
           this.trailingActionElement.focus();
         }
       },
+      getAttribute: (name: string) => this.mdcRoot.getAttribute(name),
+      notifyEditStart: () => {},
+      notifyEditFinish: () => {},
+      removeTrailingActionFocus: () => {},
+      isTrailingActionNavigable: () => false,
       isRTL: () => getComputedStyle(this.mdcRoot).direction === 'rtl'
     };
   }
@@ -195,7 +201,7 @@ export class ChipBase extends BaseElement {
         <div class="mdc-chip ${classMap(classes)}"
           role="row"
           .ripple=${ripple()}
-          @click=${this.handleInteraction}
+          @click=${this.handleClick}
           @keydown=${this.handleKeydown}
           @transitionend=${this.handleTransitionEnd}
         >
@@ -244,7 +250,7 @@ export class ChipBase extends BaseElement {
     const role = isFilter ? 'checkbox' : 'button';
     const ariaChecked = isFilter ? String(this.selected) : undefined;
     return html`
-      <span class="mdc-chip__text mdc-chip__primary-action" role="${role}" tabindex="0" aria-checked=${ifDefined(ariaChecked)}>
+      <span class="mdc-chip__text mdc-chip__primary-action" role="${role}" tabindex="0" aria-checked="${ifDefined(ariaChecked)}">
         ${this.renderLabel()}
       </span>`;
   }
@@ -260,8 +266,6 @@ export class ChipBase extends BaseElement {
         tabindex="-1"
         role=${ifDefined(this.removeIconFocusable ? 'button' : undefined)}
         aria-hidden=${ifDefined(this.removeIconFocusable ? undefined : 'true')}
-        @click=${this.handleTrailingIconInteraction}
-        @keydown=${this.handleTrailingIconInteraction}
       >${this.removeIcon}</i>` : nothing}`;
 
     if (this.removeIconFocusable) {
@@ -272,7 +276,7 @@ export class ChipBase extends BaseElement {
   }
 
   private dispatchRemovalEvent() {
-    const detail: MDCChipRemovalEventDetail = {chipId: this.id, root: this};
+    const detail: MDCChipRemovalEventDetail = {chipId: this.id, removedAnnouncement: ''};
     this.dispatchEvent(new CustomEvent(MDCChipFoundation.strings.REMOVAL_EVENT, {
       detail,
       bubbles: true,
@@ -280,20 +284,16 @@ export class ChipBase extends BaseElement {
     }));
   }
 
-  private handleInteraction(e: MouseEvent | KeyboardEvent) {
-    this.mdcFoundation.handleInteraction(e);
+  private handleClick() {
+    this.mdcFoundation.handleClick();
   }
 
   private handleTransitionEnd(e: TransitionEvent) {
     this.mdcFoundation.handleTransitionEnd(e);
   }
 
-  private handleTrailingIconInteraction(e: MouseEvent | KeyboardEvent) {
-    this.mdcFoundation.handleTrailingIconInteraction(e);
-  }
-
   private handleKeydown(e: KeyboardEvent) {
-    this.handleInteraction(e);
+    this.handleClick();
     this.mdcFoundation.handleKeydown(e);
   }
 }

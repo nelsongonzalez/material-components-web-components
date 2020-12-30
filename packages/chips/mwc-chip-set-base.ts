@@ -14,7 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import {BaseElement, observer} from '@material/mwc-base/form-element.js';
+import {BaseElement} from '@material/mwc-base/base-element';
+import {observer} from '@material/mwc-base/observer';
 import {addHasRemoveClass} from '@material/mwc-base/utils.js';
 import {MDCChipInteractionEvent, MDCChipSelectionEvent, MDCChipRemovalEvent, MDCChipNavigationEvent} from '@material/chips/chip/types';
 import {MDCChipSetAdapter} from '@material/chips/chip-set/adapter.js';
@@ -32,7 +33,7 @@ export class ChipSetBase extends BaseElement {
 
   @property()
   @observer(function(this: ChipSetBase, value: ChipType) {
-    for (let chip of this.chipsArray) {
+    for (const chip of this.chipsArray) {
       chip.type = value;
     }
   })
@@ -48,7 +49,8 @@ export class ChipSetBase extends BaseElement {
   protected createAdapter(): MDCChipSetAdapter {
     return {
       hasClass: addHasRemoveClass(this.mdcRoot).hasClass,
-      removeChipAtIndex: index => {
+      announceMessage: () => {},
+      removeChipAtIndex: (index) => {
         const chip = this.chipsArray[index];
         if (chip) {
           if (chip.parentNode) {
@@ -64,7 +66,7 @@ export class ChipSetBase extends BaseElement {
           chip.setSelectedFromChipSet(isSelected, shouldNotifyClients);
         }
       },
-      getIndexOfChipById: chipId => {
+      getIndexOfChipById: (chipId) => {
         for (let i = 0; i < this.chipsArray.length; i++) {
           if (this.chipsArray[i].id === chipId) {
             return i;
@@ -73,19 +75,19 @@ export class ChipSetBase extends BaseElement {
 
         return -1;
       },
-      focusChipPrimaryActionAtIndex: index => {
+      focusChipPrimaryActionAtIndex: (index) => {
         const chip = this.chipsArray[index];
         if (chip) {
           chip.focusPrimaryAction();
         }
       },
-      focusChipTrailingActionAtIndex: index => {
+      focusChipTrailingActionAtIndex: (index) => {
         const chip = this.chipsArray[index];
         if (chip) {
           this.chipsArray[index].focusTrailingAction();
         }
       },
-      removeFocusFromChipAtIndex: index => {
+      removeFocusFromChipAtIndex: (index) => {
         const chip = this.chipsArray[index];
         if (chip) {
           this.chipsArray[index].removeFocus();
@@ -131,7 +133,7 @@ export class ChipSetBase extends BaseElement {
 
   protected syncChips() {
     const chips = this.queryChips();
-    for (let chip of chips) {
+    for (const chip of chips) {
       chip.type = this.type;
       chip.id = chip.id || this.nextChipId();
       if (chip.selected) {
@@ -149,7 +151,7 @@ export class ChipSetBase extends BaseElement {
   protected queryChips() {
     const chips: ChipBase[] = [];
     const collectChips = (root: Element) => {
-      for (let child of Array.from(root.children)) {
+      for (const child of Array.from(root.children)) {
         if (child instanceof ChipBase) {
           chips.push(child);
         } else {
@@ -163,20 +165,18 @@ export class ChipSetBase extends BaseElement {
   }
 
   private handleChipInteraction(e: MDCChipInteractionEvent) {
-    this.mdcFoundation.handleChipInteraction(e.detail.chipId);
+    this.mdcFoundation.handleChipInteraction(e.detail);
   }
 
   private handleChipSelection(e: MDCChipSelectionEvent) {
-    const {chipId, selected, shouldIgnore} = e.detail;
-    this.mdcFoundation.handleChipSelection(chipId, selected, shouldIgnore);
+    this.mdcFoundation.handleChipSelection(e.detail);
   }
 
   private handleChipRemoval(e: MDCChipRemovalEvent) {
-    this.mdcFoundation.handleChipRemoval(e.detail.chipId);
+    this.mdcFoundation.handleChipRemoval(e.detail);
   }
 
   private handleChipNavigation(e: MDCChipNavigationEvent) {
-    const {chipId, key, source} = e.detail;
-    this.mdcFoundation.handleChipNavigation(chipId, key, source);
+    this.mdcFoundation.handleChipNavigation(e.detail);
   }
 }

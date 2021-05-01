@@ -240,7 +240,8 @@ suite('mwc-menu', () => {
     });
 
     test('correct roles are passed to inner list', async () => {
-      const list = element.shadowRoot!.querySelector<List>('.mdc-list')!;
+      const list =
+          element.shadowRoot!.querySelector<List>('.mdc-deprecated-list')!;
       assert.equal(element.innerRole, 'menu');
       assert.equal(list.innerRole, 'menu');
       assert.equal(list.itemRoles, 'menuitem');
@@ -251,7 +252,8 @@ suite('mwc-menu', () => {
     });
 
     test('`activatable` is set on inner list', async () => {
-      const list = element.shadowRoot!.querySelector<List>('.mdc-list')!;
+      const list =
+          element.shadowRoot!.querySelector<List>('.mdc-deprecated-list')!;
       assert.equal(element.activatable, false);
       assert.equal(list.activatable, false);
       element.activatable = true;
@@ -275,7 +277,8 @@ suite('mwc-menu', () => {
     });
 
     test('`multi` is set on inner list', async () => {
-      const list = element.shadowRoot!.querySelector<List>('.mdc-list')!;
+      const list =
+          element.shadowRoot!.querySelector<List>('.mdc-deprecated-list')!;
       assert.equal(element.multi, true);
       assert.equal(list.multi, true);
       element.multi = false;
@@ -490,7 +493,7 @@ suite('mwc-menu-surface', () => {
       assert.equal(element.open, false);
     });
 
-    test('closing fires the closed event', async () => {
+    test('closing fires the closed event after raf', async () => {
       const fake = hanbi.spy();
       element.addEventListener('closed', fake.handler);
       element.show();
@@ -499,6 +502,17 @@ suite('mwc-menu-surface', () => {
       element.close();
       await element.updateComplete;
       await rafPromise();
+      assert.isTrue(fake.called);
+    });
+
+    test('closing fires the closing event immediately', async () => {
+      const fake = hanbi.spy();
+      element.addEventListener('closing', fake.handler);
+      element.show();
+      await element.updateComplete;
+      await rafPromise();
+      element.close();
+      await element.updateComplete;
       assert.isTrue(fake.called);
     });
 
@@ -534,6 +548,17 @@ suite('mwc-menu-surface', () => {
       await rafPromise();
       await element.updateComplete;
       assert.isFalse(element.open);
+    });
+
+    test('respects stayOpenOnBodyClick', async () => {
+      element.stayOpenOnBodyClick = true;
+      element.show();
+      await element.updateComplete;
+      await rafPromise();
+      document.body.dispatchEvent(new MouseEvent('click'));
+      await rafPromise();
+      await element.updateComplete;
+      assert.isTrue(element.open);
     });
   });
 
@@ -582,51 +607,49 @@ suite('mwc-menu-surface', () => {
       assert.equal(element.corner, 'TOP_START');
     });
 
-    test(
-        '`menuCorner` doesnt flip if set to invalid val or same val',
-        async () => {
-          const internals = element as unknown as MenuCornerInternals;
+    test('`menuCorner` wont flip with invalid/same val', async () => {
+      const internals = element as unknown as MenuCornerInternals;
 
-          (element as unknown as {menuCorner: 'end'}).menuCorner = 'end';
+      (element as unknown as {menuCorner: 'end'}).menuCorner = 'end';
 
-          await element.updateComplete;
+      await element.updateComplete;
 
-          assert.equal(internals.previousMenuCorner, null);
-          assert.equal(internals.bitwiseCorner, CornerEnum.TOP_START);
-          assert.equal(element.corner, 'TOP_START');
+      assert.equal(internals.previousMenuCorner, null);
+      assert.equal(internals.bitwiseCorner, CornerEnum.TOP_START);
+      assert.equal(element.corner, 'TOP_START');
 
-          element.menuCorner = 'START';
+      element.menuCorner = 'START';
 
-          await element.updateComplete;
+      await element.updateComplete;
 
-          assert.equal(internals.previousMenuCorner, null);
-          assert.equal(internals.bitwiseCorner, CornerEnum.TOP_START);
-          assert.equal(element.corner, 'TOP_START');
+      assert.equal(internals.previousMenuCorner, null);
+      assert.equal(internals.bitwiseCorner, CornerEnum.TOP_START);
+      assert.equal(element.corner, 'TOP_START');
 
-          element.menuCorner = 'END';
+      element.menuCorner = 'END';
 
-          await element.updateComplete;
+      await element.updateComplete;
 
-          assert.equal(internals.previousMenuCorner, 'END');
-          assert.equal(internals.bitwiseCorner, CornerEnum.TOP_END);
-          assert.equal(element.corner, 'TOP_START');
+      assert.equal(internals.previousMenuCorner, 'END');
+      assert.equal(internals.bitwiseCorner, CornerEnum.TOP_END);
+      assert.equal(element.corner, 'TOP_START');
 
-          (element as unknown as {menuCorner: 'start'}).menuCorner = 'start';
+      (element as unknown as {menuCorner: 'start'}).menuCorner = 'start';
 
-          await element.updateComplete;
+      await element.updateComplete;
 
-          assert.equal(internals.previousMenuCorner, 'END');
-          assert.equal(internals.bitwiseCorner, CornerEnum.TOP_END);
-          assert.equal(element.corner, 'TOP_START');
+      assert.equal(internals.previousMenuCorner, 'END');
+      assert.equal(internals.bitwiseCorner, CornerEnum.TOP_END);
+      assert.equal(element.corner, 'TOP_START');
 
-          element.menuCorner = 'END';
+      element.menuCorner = 'END';
 
-          await element.updateComplete;
+      await element.updateComplete;
 
-          assert.equal(internals.previousMenuCorner, 'END');
-          assert.equal(internals.bitwiseCorner, CornerEnum.TOP_END);
-          assert.equal(element.corner, 'TOP_START');
-        });
+      assert.equal(internals.previousMenuCorner, 'END');
+      assert.equal(internals.bitwiseCorner, CornerEnum.TOP_END);
+      assert.equal(element.corner, 'TOP_START');
+    });
 
     test('`corner` internals flip when `menuCorner` flipped', async () => {
       const internals = element as unknown as MenuCornerInternals;

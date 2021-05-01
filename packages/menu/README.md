@@ -238,11 +238,12 @@ Name                  | Type                              | Default       | Desc
 `quick`               | `boolean`                         | `false`       | Whether to skip the opening animation.
 `absolute`            | `boolean`                         | `false`       | Makes the menu's position `absolute` which will be relative to whichever ancestor has `position:relative`. Setting `x` and `y` will modify the menu's `left` and `top`. Setting `anchor` will attempt to position the menu to the `anchor`.
 `fixed`               | `boolean`                         | `false`       | Makes the menu's position `fixed` which will be relative to the window. Setting `x` and `y` will modify the menu's `left` and `top`. Setting `anchor` will attempt to position the menu to the `anchor`'s immediate position before opening.
-`x`                   | `number\|null`                    | `null`        | Sets horizontal position when `absolute` or `fixed`. When given an `anchor`, sets horizontal position relative to `anchor` at given `corner`. Requires `y` not to be null.
-`y`                   | `number\|null`                    | `null`        | Sets vertical position when `absolute` or `fixed`. When given an `anchor`, sets vertical position relative to `anchor` at given `corner`. Requires `x` not to be null.
+`x`                   | `number\|null`                    | `null`        | Sets horizontal position when `absolute`. When given an `anchor`, sets horizontal position relative to `anchor` at given `corner`. Requires `y` not to be null.
+`y`                   | `number\|null`                    | `null`        | Sets vertical position when `absolute`. When given an `anchor`, sets vertical position relative to `anchor` at given `corner`. Requires `x` not to be null.
 `forceGroupSelection` | `boolean`                         | `false`       | Forces a menu group to have a selected item by preventing deselection of menu items in menu groups via user interaction.
 `defaultFocus`        | `DefaultFocusState`\*\*\*         | `"LIST_ROOT"` | Item to focus upon menu open.
 `fullwidth`           | `boolean`                         | `false`       | Sets surface width to 100%.
+`stayOpenOnBodyClick` | `boolean`                         | `false`       | Prevents the menu from closing when clicking outside the menu.
 `wrapFocus`           | `boolean`                         | `false`       | Proxies to [`mwc-list`'s](https://github.com/material-components/material-components-web-components/tree/master/packages/list#mwc-list-1) `wrapFocus` property.
 `innerRole`           | `"menu"                           | "listbox"`    | `"menu"`
 `multi`               | `boolean`                         | `false`       | Proxies to [`mwc-list`'s](https://github.com/material-components/material-components-web-components/tree/master/packages/list#mwc-list-1) `multi` property.
@@ -269,8 +270,8 @@ Name                  | Type                              | Default       | Desc
 
 | Name     | Description
 | -------- | -------------
-| `show() => void`  | Sets `open` to false.
-| `close() => void` | Sets `open` to true.
+| `show() => void`  | Sets `open` to true.
+| `close() => void` | Sets `open` to false.
 | `select(index: MWCMenuIndex) => void` | Selects the elements at the given index / indices.
 | `getFocusedItemIndex() => number` | Returns the index of the currently-focused item. `-1` if none are focused.
 | `focusItemAtIndex(index) => void` | Focuses the item at the given index and manages tabindex on all other items.
@@ -281,6 +282,7 @@ Name                  | Type                              | Default       | Desc
 | Event Name | Target             | Detail             | Description
 | ---------- | ------------------ | ------------------ | -----------
 | `opened`   | `mwc-menu-surface` | none               | Fired when opened.
+| `closing`  | `mwc-menu-surface` | none               | Fired when closing but animation may not have completed yet. Use for time-sensitive logic that must be run immediately upon close.
 | `closed`   | `mwc-menu-surface` | none               | Fired when closed.
 | `action`   | `mwc-list`         | `ActionDetail`*    | Fired when a selection has been made via click or keyboard aciton.
 | `selected` | `mwc-list`         | `SelectedDetail`*  | Fired when a selection has been made. `index` is the selected index (will be of type `Set<number>` if multi and `number` if single), and `diff` (of type `IndexDiff`**) represents the diff of added and removed indices from previous selection.
@@ -296,9 +298,9 @@ propagate through `mwc-menu`.
 | Name                     | Default | Description
 | ------------------------ | ------- |------------
 | `--mdc-menu-item-height` | `48px`  | Height of single-line list-items in the menu.
-| `--mdc-menu-min-width`   | `auto`  | Menu min-width.
-| `--mdc-menu-max-width`   | `auto`  | Menu max-width.
-| `--mdc-menu-max-height`  | `calc(100vh - 32px)` and content height | Menu max height.
+| `--mdc-menu-min-width`   | `112px` | Menu min-width.
+| `--mdc-menu-max-width`   | `calc(100vw - 32px)` | Menu max-width.
+| `--mdc-menu-max-height`  | `calc(100vh - 32px)` | Menu max-height.
 | `--mdc-menu-z-index`     | `8`     | Z-index of the popup menu surface.
 
 `mwc-menu` internally uses

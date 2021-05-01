@@ -1,4 +1,6 @@
-# Material Web Components [![Test Status](https://github.com/material-components/material-components-web-components/workflows/tests/badge.svg?branch=master)](https://github.com/material-components/material-components-web-components/actions?query=workflow%3Atests+branch%3Amaster) [![GitHub issues by-label](https://img.shields.io/github/issues-raw/material-components/material-components-web-components/Type:%20Bug)](https://github.com/material-components/material-components-web-components/issues?q=is%3Aissue+is%3Aopen+label%3A%22Type%3A+Bug%22)
+# Material Web Components
+
+[![Test Status](https://github.com/material-components/material-components-web-components/workflows/tests/badge.svg?branch=master)](https://github.com/material-components/material-components-web-components/actions?query=workflow%3Atests+branch%3Amaster) [![GitHub issues by-label](https://img.shields.io/github/issues-raw/material-components/material-components-web-components/Type:%20Bug)](https://github.com/material-components/material-components-web-components/issues?q=is%3Aissue+is%3Aopen+label%3A%22Type%3A+Bug%22)
 
 > IMPORTANT: The Material Web Components are a work in progress and subject to major changes until 1.0 release.
 
@@ -256,5 +258,37 @@ npm run test:debug -- --autoWatch --packages <comma sepaarated package names> # 
 
 ## Publish
 
-npm publish packages/top-app-bar
-npm publish packages/top-app-bar-fixed
+clear .npmrc content
+
+```
+find . -type d -name "node_modules" -exec rm -rf {} +
+npm install
+npm run build
+```
+
+GitHub.com -> Settings -> Developer settings -> Personal access tokens -> Generate new token
+node: Publish material-components-web-components
+scope: write:packages
+
+copy the token
+
+.npmrc
+```
+//npm.pkg.github.com/:_authToken=[token]
+```
+
+.yarnrc
+```
+"@nelsongonzalez:registry" "https://npm.pkg.github.com"
+```
+
+npm login --scope=@nelsongonzalez --registry=https://npm.pkg.github.com
+Username: nelsongonzalez
+Password: [token]
+Email: nelzonleonardo@gmail.com
+
+cd packages/top-app-bar
+npm publish
+
+packages/top-app-bar-fixed
+npm publish

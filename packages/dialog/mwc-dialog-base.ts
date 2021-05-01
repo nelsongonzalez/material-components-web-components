@@ -99,7 +99,23 @@ export class DialogBase extends BaseElement {
   @property() actionAttribute = 'dialogAction';
   @property() initialFocusAttribute = 'dialogInitialFocus';
 
-  private closingDueToDisconnect?: boolean;
+  set suppressDefaultPressSelector(selector: string) {
+    if (this.mdcFoundation) {
+      this.mdcFoundation.setSuppressDefaultPressSelector(selector);
+    } else {
+      this.initialSupressDefaultPressSelector = selector;
+    }
+  }
+
+
+  get suppressDefaultPressSelector(): string {
+    return this.mdcFoundation ?
+        this.mdcFoundation.getSuppressDefaultPressSelector() :
+        this.initialSupressDefaultPressSelector;
+  }
+
+  protected closingDueToDisconnect?: boolean;
+  protected initialSupressDefaultPressSelector = '';
 
   protected get primaryButton(): HTMLElement|null {
     let assignedNodes = (this.primarySlot as HTMLSlotElement).assignedNodes();
@@ -111,7 +127,6 @@ export class DialogBase extends BaseElement {
   protected currentAction: string|undefined;
   protected mdcFoundationClass = MDCDialogFoundation;
   protected mdcFoundation!: MDCDialogFoundation;
-  protected boundLayout: (() => void)|null = null;
   protected boundHandleClick: ((ev: MouseEvent) => void)|null = null;
   protected boundHandleKeydown: ((ev: KeyboardEvent) => void)|null = null;
   protected boundHandleDocumentKeydown:
@@ -158,7 +173,7 @@ export class DialogBase extends BaseElement {
     return initFocusElement;
   }
 
-  private searchNodeTreesForAttribute(nodes: Node[], attribute: string):
+  protected searchNodeTreesForAttribute(nodes: Node[], attribute: string):
       HTMLElement|null {
     for (const node of nodes) {
       if (!(node instanceof HTMLElement)) {
@@ -229,11 +244,43 @@ export class DialogBase extends BaseElement {
         blockingElements.remove(this);
       },
       trapFocus: (el) => {
+        if (!this.isConnected) {
+          // this is the case where it is opened and closed and then removed
+          // from DOM before the animation has completed. Blocking Elements will
+          // throw if this is the case
+          return;
+        }
         blockingElements.push(this);
+
         if (el) {
           el.focus();
         }
       },
+      registerContentEventHandler: (evtType, handler) => {
+        const el = this.contentElement;
+        el.addEventListener(evtType, handler);
+      },
+      deregisterContentEventHandler: (evtType, handler) => {
+        const el = this.contentElement;
+        el.removeEventListener(evtType, handler);
+      },
+      isScrollableContentAtTop: () => {
+        const el = this.contentElement;
+        return el ? el.scrollTop === 0 : false;
+      },
+      isScrollableContentAtBottom: () => {
+        const el = this.contentElement;
+        return el ?
+            Math.ceil(el.scrollHeight - el.scrollTop) === el.clientHeight :
+            false;
+      },
+      registerWindowEventHandler: (evtType, handler) => {
+        window.addEventListener(evtType, handler, applyPassive());
+      },
+      deregisterWindowEventHandler: (evtType, handler) => {
+        window.removeEventListener(evtType, handler, applyPassive());
+      },
+
     };
   }
 
@@ -285,9 +332,25 @@ export class DialogBase extends BaseElement {
       <h2 id="title" class="mdc-dialog__title">${this.heading}</h2>`;
   }
 
-  firstUpdated() {
+  protected firstUpdated() {
     super.firstUpdated();
     this.mdcFoundation.setAutoStackButtons(true);
+    if (this.initialSupressDefaultPressSelector) {
+      this.suppressDefaultPressSelector =
+          this.initialSupressDefaultPressSelector;
+    } else {
+      this.suppressDefaultPressSelector = [
+        this.suppressDefaultPressSelector, 'mwc-textarea',
+        'mwc-menu mwc-list-item', 'mwc-select mwc-list-item'
+      ].join(', ');
+    }
+    this.boundHandleClick = this.mdcFoundation.handleClick.bind(
+                                this.mdcFoundation) as EventListener;
+    this.boundHandleKeydown = this.mdcFoundation.handleKeydown.bind(
+                                  this.mdcFoundation) as EventListener;
+    this.boundHandleDocumentKeydown =
+        this.mdcFoundation.handleDocumentKeydown.bind(this.mdcFoundation) as
+        EventListener;
   }
 
   connectedCallback() {
@@ -352,27 +415,17 @@ export class DialogBase extends BaseElement {
   }
 
   protected setEventListeners() {
-    this.boundHandleClick = this.mdcFoundation.handleClick.bind(
-                                this.mdcFoundation) as EventListener;
-    this.boundLayout = () => {
-      if (this.open) {
-        this.mdcFoundation.layout.bind(this.mdcFoundation);
-      }
-    };
-    this.boundHandleKeydown = this.mdcFoundation.handleKeydown.bind(
-                                  this.mdcFoundation) as EventListener;
-    this.boundHandleDocumentKeydown =
-        this.mdcFoundation.handleDocumentKeydown.bind(this.mdcFoundation) as
-        EventListener;
-
-    this.mdcRoot.addEventListener('click', this.boundHandleClick);
-    window.addEventListener('resize', this.boundLayout, applyPassive());
-    window.addEventListener(
-        'orientationchange', this.boundLayout, applyPassive());
-    this.mdcRoot.addEventListener(
-        'keydown', this.boundHandleKeydown, applyPassive());
-    document.addEventListener(
-        'keydown', this.boundHandleDocumentKeydown, applyPassive());
+    if (this.boundHandleClick) {
+      this.mdcRoot.addEventListener('click', this.boundHandleClick);
+    }
+    if (this.boundHandleKeydown) {
+      this.mdcRoot.addEventListener(
+          'keydown', this.boundHandleKeydown, applyPassive());
+    }
+    if (this.boundHandleDocumentKeydown) {
+      document.addEventListener(
+          'keydown', this.boundHandleDocumentKeydown, applyPassive());
+    }
   }
 
   protected removeEventListeners() {
@@ -380,18 +433,12 @@ export class DialogBase extends BaseElement {
       this.mdcRoot.removeEventListener('click', this.boundHandleClick);
     }
 
-    if (this.boundLayout) {
-      window.removeEventListener('resize', this.boundLayout);
-      window.removeEventListener('orientationchange', this.boundLayout);
-    }
-
     if (this.boundHandleKeydown) {
       this.mdcRoot.removeEventListener('keydown', this.boundHandleKeydown);
     }
 
     if (this.boundHandleDocumentKeydown) {
-      this.mdcRoot.removeEventListener(
-          'keydown', this.boundHandleDocumentKeydown);
+      document.removeEventListener('keydown', this.boundHandleDocumentKeydown);
     }
   }
 

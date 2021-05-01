@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import '@material/mwc-list/mwc-list-item';
+import './mwc-list-item';
 
 import {BaseElement} from '@material/mwc-base/base-element';
 import {observer} from '@material/mwc-base/observer';
@@ -48,7 +48,10 @@ const isListItem = (element: Element): element is ListItemBase => {
 function clearAndCreateItemsReadyPromise(this: ListBase) {
   const oldResolver = this.itemsReadyResolver;
   this.itemsReady = new Promise((res) => {
-    return this.itemsReadyResolver = res;
+    // TODO(b/175626389): Type '(value: never[] | PromiseLike<never[]>) => void'
+    // is not assignable to type '(value?: never[] | PromiseLike<never[]> |
+    // undefined) => void'.
+    return this.itemsReadyResolver = res as any;
   });
   oldResolver();
 }
@@ -66,7 +69,7 @@ export abstract class ListBase extends BaseElement implements Layoutable {
 
   @property({type: String}) emptyMessage: string|undefined;
 
-  @query('.mdc-list') protected mdcRoot!: HTMLElement;
+  @query('.mdc-deprecated-list') protected mdcRoot!: HTMLElement;
 
   @query('slot') protected slotElement!: HTMLSlotElement|null;
 
@@ -150,9 +153,24 @@ export abstract class ListBase extends BaseElement implements Layoutable {
 
   itemsReady = Promise.resolve([]);
 
-  async _getUpdateComplete() {
-    await super._getUpdateComplete();
+  // tslint:disable:ban-ts-ignore
+  protected async _getUpdateComplete() {
+    let result = false;
+    // @ts-ignore
+    if (super._getUpdateComplete) {
+      // @ts-ignore
+      await super._getUpdateComplete();
+    } else {
+      // @ts-ignore
+      result = await super.getUpdateComplete();
+    }
     await this.itemsReady;
+    return result;
+  }
+  // tslint:enable:ban-ts-ignore
+
+  protected async getUpdateComplete() {
+    return this._getUpdateComplete();
   }
 
   protected get assignedElements(): Element[] {
@@ -254,7 +272,7 @@ export abstract class ListBase extends BaseElement implements Layoutable {
           tabindex=${tabindex}
           role="${ifDefined(role)}"
           aria-label="${ifDefined(ariaLabel)}"
-          class="mdc-list"
+          class="mdc-deprecated-list"
           @keydown=${this.onKeydown}
           @focusin=${this.onFocusIn}
           @focusout=${this.onFocusOut}

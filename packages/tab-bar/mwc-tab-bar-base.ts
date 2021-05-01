@@ -55,13 +55,13 @@ export class TabBarBase extends BaseElement {
   @property({type: Number})
   activeIndex = 0;
 
-  private _previousActiveIndex = -1;
+  protected _previousActiveIndex = -1;
 
-  private _handleTabInteraction(e: MDCTabInteractionEvent) {
+  protected _handleTabInteraction(e: MDCTabInteractionEvent) {
     this.mdcFoundation.handleTabInteraction(e);
   }
 
-  private _handleKeydown(e: KeyboardEvent) {
+  protected _handleKeydown(e: KeyboardEvent) {
     this.mdcFoundation.handleKeyDown(e);
   }
 
@@ -77,13 +77,13 @@ export class TabBarBase extends BaseElement {
   }
 
   // TODO(sorvell): probably want to memoize this and use a `slotChange` event
-  private _getTabs() {
+  protected _getTabs() {
     return (this.tabsSlot as HTMLSlotElement)
                .assignedNodes({flatten: true})
                .filter((e: Node) => e instanceof Tab) as Tab[];
   }
 
-  private _getTab(index: number) {
+  protected _getTab(index: number) {
     return this._getTabs()[index];
   }
 
@@ -168,14 +168,29 @@ export class TabBarBase extends BaseElement {
     // This is necessary because the foundation/adapter synchronously addresses
     // the scroller element.
   }
+
+  // tslint:disable:ban-ts-ignore
   protected _getUpdateComplete() {
-    return super._getUpdateComplete()
-        .then(() => this.scrollerElement.updateComplete)
+    let superPromise;
+    // @ts-ignore
+    if (super._getUpdateComplete) {
+      // @ts-ignore
+      superPromise = super._getUpdateComplete();
+    } else {
+      // @ts-ignore
+      superPromise = super.getUpdateComplete();
+    }
+    return superPromise.then(() => this.scrollerElement.updateComplete)
         .then(() => {
           if (this.mdcFoundation === undefined) {
             this.createFoundation();
           }
         });
+  }
+  // tslint:enable:ban-ts-ignore
+
+  protected getUpdateComplete() {
+    return this._getUpdateComplete();
   }
 
   scrollIndexIntoView(index: number) {

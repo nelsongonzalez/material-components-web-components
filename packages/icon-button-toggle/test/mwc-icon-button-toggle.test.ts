@@ -17,6 +17,7 @@
 
 import {IconButtonToggle} from '@material/mwc-icon-button-toggle';
 
+const ICON_BUTTON_ON_SELECTOR = '.mdc-icon-button.mdc-icon-button--on';
 const ICON_SELECTOR =
     '.mdc-icon-button__icon.mdc-icon-button__icon--on i.material-icons';
 const OFF_ICON_SELECTOR =
@@ -79,13 +80,13 @@ suite('mwc-icon-button-toggle', () => {
       });
 
   test(
-      'setting `label` updates the aria-label attribute on the native button element',
+      'setting `ariaLabel` updates the aria-label attribute on the native button element',
       async () => {
-        const label = 'hello';
-        element.label = label;
+        const ariaLabel = 'hello';
+        element.ariaLabel = ariaLabel;
         await element.updateComplete;
         const button = element.shadowRoot!.querySelector('button')!;
-        assert.equal(button.getAttribute('aria-label'), label);
+        assert.equal(button.getAttribute('aria-label'), ariaLabel);
       });
 
   test(
@@ -162,8 +163,29 @@ suite('mwc-icon-button-toggle', () => {
     element.appendChild(fragment);
     await element.updateComplete;
     assert.equal(element.on, false);
+    assert.isNull(element.shadowRoot!.querySelector(ICON_BUTTON_ON_SELECTOR));
     internals.mdcRoot.click();
     await element.updateComplete;
     assert.equal(element.on, true);
+    assert.isNotNull(
+        element.shadowRoot!.querySelector(ICON_BUTTON_ON_SELECTOR));
+  });
+
+  test('button with toggled aria label toggles aria label', async () => {
+    element.ariaLabelOn = 'aria label on';
+    element.ariaLabelOff = 'aria label off';
+    await element.updateComplete;
+
+    const button = internals.mdcRoot;
+    assert.isFalse(element.on);
+    assert.equal(button.getAttribute('aria-label'), 'aria label off');
+    assert.isNull(button.getAttribute('aria-pressed'));
+
+    // Toggle
+    button.click();
+    await element.updateComplete;
+    assert.isTrue(element.on);
+    assert.equal(button.getAttribute('aria-label'), 'aria label on');
+    assert.isNull(button.getAttribute('aria-pressed'));
   });
 });

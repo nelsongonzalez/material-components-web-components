@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {MDCResizeObserver, WithMDCResizeObserver} from '@material/linear-progress/types';
+import {ariaProperty} from '@material/mwc-base/aria-property';
 import {html, internalProperty, LitElement, property, PropertyValues, query, TemplateResult} from 'lit-element';
 import {classMap} from 'lit-html/directives/class-map';
 import {ifDefined} from 'lit-html/directives/if-defined';
@@ -33,7 +35,8 @@ export class LinearProgressBase extends LitElement {
 
   @property({type: Boolean, reflect: true}) closed = false;
 
-  @property() ariaLabel = '';
+  /** @soyPrefixAttribute */
+  @ariaProperty @property({attribute: 'aria-label'}) ariaLabel?: string;
 
   @internalProperty() protected stylePrimaryHalf = '';
   @internalProperty() protected stylePrimaryFull = '';
@@ -42,7 +45,7 @@ export class LinearProgressBase extends LitElement {
   @internalProperty() protected styleSecondaryFull = '';
   @internalProperty() protected animationReady = true;
   @internalProperty() protected closedAnimationOff = false;
-  protected resizeObserver: ResizeObserver|null = null;
+  protected resizeObserver: MDCResizeObserver|null = null;
 
   connectedCallback() {
     super.connectedCallback();
@@ -61,11 +64,11 @@ export class LinearProgressBase extends LitElement {
       'mdc-linear-progress--closed': this.closed,
       'mdc-linear-progress--closed-animation-off': this.closedAnimationOff,
       'mdc-linear-progress--indeterminate': this.indeterminate,
-      'mdc-linear-progress--reversed': this.reverse,
       // needed for controller-less render
       'mdc-linear-progress--animation-ready': this.animationReady
     };
 
+    /** @styleMap */
     const rootStyles = {
       '--mdc-linear-progress-primary-half': this.stylePrimaryHalf,
       '--mdc-linear-progress-primary-half-neg':
@@ -85,10 +88,12 @@ export class LinearProgressBase extends LitElement {
           this.styleSecondaryFull !== '' ? `-${this.styleSecondaryFull}` : '',
     };
 
+    /** @styleMap */
     const bufferBarStyles = {
       'flex-basis': this.indeterminate ? '100%' : `${this.buffer * 100}%`,
     };
 
+    /** @styleMap */
     const primaryBarStyles = {
       transform: this.indeterminate ? 'scaleX(1)' : `scaleX(${this.progress})`,
     };
@@ -97,13 +102,14 @@ export class LinearProgressBase extends LitElement {
       <div
           role="progressbar"
           class="mdc-linear-progress ${classMap(classes)}"
-          style=${styleMap(rootStyles)}
-          aria-label=${ifDefined(this.ariaLabel ? this.ariaLabel : undefined)}
+          style="${styleMap(rootStyles)}"
+          dir="${ifDefined(this.reverse ? 'rtl' : undefined)}"
+          aria-label="${ifDefined(this.ariaLabel)}"
           aria-valuemin="0"
           aria-valuemax="1"
-          aria-valuenow=${
-        ifDefined(this.indeterminate ? undefined : this.progress)}
-        @transitionend=${this.syncClosedState}>
+          aria-valuenow="${
+        ifDefined(this.indeterminate ? undefined : this.progress)}"
+        @transitionend="${this.syncClosedState}">
         <div class="mdc-linear-progress__buffer">
           <div
             class="mdc-linear-progress__buffer-bar"
@@ -141,7 +147,7 @@ export class LinearProgressBase extends LitElement {
     this.attachResizeObserver();
   }
 
-  private syncClosedState() {
+  protected syncClosedState() {
     this.closedAnimationOff = this.closed;
   }
 
@@ -160,7 +166,7 @@ export class LinearProgressBase extends LitElement {
     // but resize observer will not update animation vals while determinate
     if (changed.has('indeterminate') &&
         changed.get('indeterminate') !== undefined && this.indeterminate &&
-        window.ResizeObserver) {
+        (window as unknown as WithMDCResizeObserver).ResizeObserver) {
       this.calculateAndSetAnimationDimensions(this.rootEl.offsetWidth);
     }
     super.updated(changed);
@@ -175,19 +181,21 @@ export class LinearProgressBase extends LitElement {
   }
 
   protected attachResizeObserver() {
-    if (window.ResizeObserver) {
-      this.resizeObserver = new ResizeObserver((entries) => {
-        if (!this.indeterminate) {
-          return;
-        }
+    if ((window as unknown as WithMDCResizeObserver).ResizeObserver) {
+      this.resizeObserver =
+          new (window as unknown as WithMDCResizeObserver)
+              .ResizeObserver((entries) => {
+                if (!this.indeterminate) {
+                  return;
+                }
 
-        for (const entry of entries) {
-          if (entry.contentRect) {
-            const width = entry.contentRect.width;
-            this.calculateAndSetAnimationDimensions(width);
-          }
-        }
-      });
+                for (const entry of entries) {
+                  if (entry.contentRect) {
+                    const width = entry.contentRect.width;
+                    this.calculateAndSetAnimationDimensions(width);
+                  }
+                }
+              });
       this.resizeObserver.observe(this.rootEl);
       return;
     }

@@ -83,6 +83,8 @@ export abstract class MenuBase extends BaseElement {
 
   @property({type: String}) menuCorner: MenuCorner = 'START';
 
+  @property({type: Boolean}) stayOpenOnBodyClick: boolean = false;
+
   @property({type: String})
   @observer(function(this: MenuBase, value: DefaultFocusState) {
     if (this.mdcFoundation) {
@@ -148,6 +150,7 @@ export abstract class MenuBase extends BaseElement {
           .fixed=${this.fixed}
           .fullwidth=${this.fullwidth}
           .menuCorner=${this.menuCorner}
+          ?stayOpenOnBodyClick=${this.stayOpenOnBodyClick}
           class="mdc-menu mdc-menu-surface"
           @closed=${this.onClosed}
           @opened=${this.onOpened}
@@ -156,7 +159,7 @@ export abstract class MenuBase extends BaseElement {
           rootTabbable
           .innerRole=${this.innerRole}
           .multi=${this.multi}
-          class="mdc-list"
+          class="mdc-deprecated-list"
           .itemRoles=${itemRoles}
           .wrapFocus=${this.wrapFocus}
           .activatable=${this.activatable}
@@ -349,9 +352,24 @@ export abstract class MenuBase extends BaseElement {
     this.open = false;
   }
 
-  protected async _getUpdateComplete() {
+  // tslint:disable:ban-ts-ignore
+  async _getUpdateComplete() {
+    let result = false;
     await this._listUpdateComplete;
-    await super._getUpdateComplete();
+    // @ts-ignore
+    if (super._getUpdateComplete) {
+      // @ts-ignore
+      await super._getUpdateComplete();
+    } else {
+      // @ts-ignore
+      result = await super.getUpdateComplete();
+    }
+    return result;
+  }
+  // tslint:enable:ban-ts-ignore
+
+  getUpdateComplete() {
+    return this._getUpdateComplete();
   }
 
   protected async firstUpdated() {

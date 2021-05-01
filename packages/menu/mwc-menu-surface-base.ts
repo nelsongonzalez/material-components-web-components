@@ -68,7 +68,7 @@ export abstract class MenuSurfaceBase extends BaseElement {
   @property({type: Boolean})
   @observer(function(this: MenuSurfaceBase, isFixed: boolean) {
     if (this.mdcFoundation && !this.absolute) {
-      this.mdcFoundation.setIsHoisted(isFixed);
+      this.mdcFoundation.setFixedPosition(isFixed);
     }
   })
   fixed = false;
@@ -114,6 +114,8 @@ export abstract class MenuSurfaceBase extends BaseElement {
     }
   })
   open = false;
+
+  @property({type: Boolean}) stayOpenOnBodyClick: boolean = false;
 
   @internalProperty()
   @observer(function(this: MenuSurfaceBase, value: CornerEnum) {
@@ -212,6 +214,11 @@ export abstract class MenuSurfaceBase extends BaseElement {
         const init: CustomEventInit = {bubbles: true, composed: true};
         const ev = new CustomEvent('closed', init);
         this.open = false;
+        this.mdcRoot.dispatchEvent(ev);
+      },
+      notifyClosing: () => {
+        const init: CustomEventInit = {bubbles: true, composed: true};
+        const ev = new CustomEvent('closing', init);
         this.mdcRoot.dispatchEvent(ev);
       },
       notifyOpen: () => {
@@ -324,6 +331,9 @@ export abstract class MenuSurfaceBase extends BaseElement {
   }
 
   protected onBodyClick(evt: MouseEvent) {
+    if (this.stayOpenOnBodyClick) {
+      return;
+    }
     const path = evt.composedPath();
     if (path.indexOf(this) === -1) {
       this.close();

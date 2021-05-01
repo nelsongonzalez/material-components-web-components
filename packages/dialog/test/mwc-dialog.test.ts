@@ -17,6 +17,9 @@
 
 import '@material/mwc-button';
 import '@material/mwc-dialog';
+import '@material/mwc-menu';
+import '@material/mwc-select';
+import '@material/mwc-textarea';
 
 import {Button} from '@material/mwc-button';
 import {Dialog} from '@material/mwc-dialog';
@@ -104,6 +107,27 @@ const withButtons = html`
   </mwc-dialog>
 `;
 
+const withSuppressContent = html`
+  <mwc-dialog>
+    <mwc-textarea></mwc-textarea>
+    <mwc-select>
+      <mwc-list-item id="select-item"></mwc-list-item>
+    </mwc-select>
+    <mwc-menu>
+      <mwc-list-item id="menu-item"></mwc-list-item>
+    </mwc-menu>
+    <mwc-button
+        slot="primaryAction"
+        data-dialogAction="ok">
+      Ok
+    </mwc-button>
+    <mwc-button
+        slot="secondaryAction">
+      Cancel
+    </mwc-button>
+  </mwc-dialog>
+`;
+
 suite('mwc-dialog:', () => {
   let fixt: TestFixture;
 
@@ -124,7 +148,8 @@ suite('mwc-dialog:', () => {
       assert.isNull(titleTag);
 
       element.heading = 'This is my Title';
-      await element.requestUpdate();
+      element.requestUpdate();
+      await element.updateComplete;
       titleTag = element.shadowRoot!.querySelector('.mdc-dialog__title');
       assert.notStrictEqual(titleTag, null);
       assert.strictEqual(titleTag!.textContent, 'This is my Title');
@@ -245,7 +270,8 @@ suite('mwc-dialog:', () => {
       assert.isTrue(actionsFooter.offsetHeight > 0);
 
       element.hideActions = true;
-      await element.requestUpdate();
+      element.requestUpdate();
+      await element.updateComplete;
 
       assert.strictEqual(actionsFooter.offsetHeight, 0);
     });
@@ -462,7 +488,8 @@ suite('mwc-dialog:', () => {
       assert.isTrue(primary.offsetLeft > secondary.offsetLeft);
 
       element.stacked = true;
-      await element.requestUpdate();
+      element.requestUpdate();
+      await element.updateComplete;
       await rafPromise();
 
       const primaryRight = primary.offsetLeft + primary.offsetWidth;
@@ -534,6 +561,9 @@ suite('mwc-dialog:', () => {
 
     teardown(() => {
       document.body.removeChild(container);
+      if (fixt) {
+        fixt.remove();
+      }
     });
 
     test('open event is cancelled when disconnected', async () => {
@@ -549,10 +579,24 @@ suite('mwc-dialog:', () => {
       await rafPromise();
       await new Promise((resolve) => {
         setTimeout(() => {
-          resolve();
+          // TODO(b/175626389): Expected 1 arguments, but got 0. Did you forget
+          // to include 'void' in your type argument to 'Promise'?
+          (resolve as any)();
         }, 150 + 10);
       });
       assert.isFalse(sawOpenEvent);
+    });
+
+    test('error not thrown after disconnect before animation', async () => {
+      fixt = await fixture(withButtons);
+      const dialog = fixt.root.querySelector('mwc-dialog')!;
+      await dialog.updateComplete;
+      dialog.open = true;
+      await dialog.updateComplete;
+      dialog.open = false;
+      fixt.remove();
+      await awaitEvent(dialog, OPENED_EVENT);
+      // blocking elements throw should throw here and fail test
     });
 
     test('maintains open state when disconnected and reconnected', async () => {
@@ -575,5 +619,50 @@ suite('mwc-dialog:', () => {
       assert.isTrue(dialog.open);
       assert.strictEqual(blockingElements.top, dialog);
     });
+  });
+
+  test('should suppress default action for MWC elements', async () => {
+    fixt = await fixture(withSuppressContent);
+
+    const dialog = fixt.root.querySelector('mwc-dialog')!;
+    dialog.open = true;
+    await awaitEvent(dialog, OPENED_EVENT);
+
+    let clickCalled = false;
+    const primary = dialog.querySelector('[slot="primaryAction"]') as Button;
+    primary.addEventListener('click', () => {
+      clickCalled = true;
+    });
+
+    const init = {detail: 0, bubbles: true, cancelable: true, composed: true};
+    const enterDown = new CustomEvent('keydown', init);
+    const enterUp = new CustomEvent('keyup', init);
+    (enterDown as unknown as HasKeyCode).keyCode = 13;
+    (enterUp as unknown as HasKeyCode).keyCode = 13;
+
+    const textarea = dialog.querySelector('mwc-textarea')!;
+    const selectItem = dialog.querySelector('#select-item')!;
+    const menuItem = dialog.querySelector('#menu-item')!;
+    textarea.dispatchEvent(enterDown);
+    textarea.dispatchEvent(enterUp);
+    selectItem.dispatchEvent(enterDown);
+    selectItem.dispatchEvent(enterUp);
+    menuItem.dispatchEvent(enterDown);
+    menuItem.dispatchEvent(enterUp);
+
+    assert.isFalse(clickCalled);
+
+    dialog.suppressDefaultPressSelector = '';
+    textarea.dispatchEvent(enterDown);
+    textarea.dispatchEvent(enterUp);
+
+    assert.isTrue(clickCalled);
+
+    if (dialog.open) {
+      dialog.open = false;
+      await awaitEvent(dialog, CLOSED_EVENT);
+    }
+
+    fixt.remove();
   });
 });

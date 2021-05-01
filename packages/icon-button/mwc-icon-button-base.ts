@@ -16,6 +16,7 @@ limitations under the License.
 */
 import '@material/mwc-ripple/mwc-ripple';
 
+import {ariaProperty} from '@material/mwc-base/aria-property';
 import {Ripple} from '@material/mwc-ripple/mwc-ripple';
 import {RippleHandlers} from '@material/mwc-ripple/ripple-handlers';
 import {eventOptions, html, internalProperty, LitElement, property, query, queryAsync, TemplateResult} from 'lit-element';
@@ -26,7 +27,10 @@ export class IconButtonBase extends LitElement {
 
   @property({type: String}) icon = '';
 
-  @property({type: String}) label = '';
+  /** @soyPrefixAttribute */
+  @ariaProperty
+  @property({type: String, attribute: 'aria-label'})
+  ariaLabel?: string;
 
   @query('button') buttonElement!: HTMLElement;
 
@@ -69,7 +73,7 @@ export class IconButtonBase extends LitElement {
   protected render(): TemplateResult {
     return html`<button
         class="mdc-icon-button"
-        aria-label="${this.label || this.icon}"
+        aria-label="${this.ariaLabel || this.icon}"
         ?disabled="${this.disabled}"
         @focus="${this.handleRippleFocus}"
         @blur="${this.handleRippleBlur}"
@@ -78,12 +82,12 @@ export class IconButtonBase extends LitElement {
         @mouseleave="${this.handleRippleMouseLeave}"
         @touchstart="${this.handleRippleTouchStart}"
         @touchend="${this.handleRippleDeactivate}"
-        @touchcancel="${this.handleRippleDeactivate}">
-      ${this.renderRipple()}
+        @touchcancel="${this.handleRippleDeactivate}"
+    >${this.renderRipple()}
     <i class="material-icons">${this.icon}</i>
-    <span class="default-slot-container">
-        <slot></slot>
-    </span>
+    <span
+      ><slot></slot
+    ></span>
   </button>`;
   }
 

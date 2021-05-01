@@ -18,7 +18,7 @@
 import '@material/mwc-icon';
 
 import {isNodeElement} from '@material/mwc-base/utils';
-import {List} from '@material/mwc-list';
+import {IndexDiff, List, SelectedDetail} from '@material/mwc-list';
 import {CheckListItem} from '@material/mwc-list/mwc-check-list-item';
 import {GraphicType, ListItem, RequestSelectedDetail} from '@material/mwc-list/mwc-list-item';
 import {ListItemBase} from '@material/mwc-list/mwc-list-item-base';
@@ -45,6 +45,41 @@ const defaultListItemProps = {
   onRequestSelected: (() => undefined) as
       (ev: CustomEvent<RequestSelectedDetail>) => void,
   onListItemRendered: (() => undefined) as (ev: Event) => void,
+};
+
+const asssertDiffsEqual = (first: IndexDiff, second: IndexDiff) => {
+  const firstAddedArray = first.added.sort((a, b) => {
+    return a - b;
+  });
+  const firstRemovedArray = first.removed.sort((a, b) => {
+    return a - b;
+  });
+
+  const secondAddedArray = second.added.sort((a, b) => {
+    return a - b;
+  });
+  const secondRemovedArray = second.removed.sort((a, b) => {
+    return a - b;
+  });
+
+  assert.equal(
+      firstAddedArray.length, secondAddedArray.length,
+      'added diffs different length');
+  assert.equal(
+      firstRemovedArray.length, secondRemovedArray.length,
+      'removed diffs different length');
+
+  for (let i = 0; i < firstAddedArray.length; i++) {
+    assert.equal(
+        firstAddedArray[i], secondAddedArray[i],
+        'added diffs different values');
+  }
+
+  for (let i = 0; i < firstRemovedArray.length; i++) {
+    assert.equal(
+        firstRemovedArray[i], secondRemovedArray[i],
+        'removed diffs different values');
+  }
 };
 
 type ListItemProps = typeof defaultListItemProps;
@@ -200,30 +235,29 @@ suite('mwc-list:', () => {
         element = fixt.root.querySelector('mwc-list-item')!;
 
         const root = (element.shadowRoot as ShadowRoot);
-        const mdcRoot =
-            root.querySelector('.mdc-list-item__text') as HTMLElement;
+        const mdcRoot = root.querySelector('.mdc-deprecated-list-item__text') as
+            HTMLElement;
         const defaultSlot =
             root.querySelector('slot:not([name])') as HTMLSlotElement;
         const primaryTextWrapper =
-            root.querySelector('.mdc-list-item__primaray-text');
+            root.querySelector('.mdc-deprecated-list-item__primaray-text');
         const secondaryTextWrapper =
-            root.querySelector('.mdc-list-item__secondary-text');
-        const metaWrapper = root.querySelector('.mdc-list-item__meta');
-        const graphicWrapper = root.querySelector('.mdc-list-item__graphic');
+            root.querySelector('.mdc-deprecated-list-item__secondary-text');
+        const metaWrapper =
+            root.querySelector('.mdc-deprecated-list-item__meta');
+        const graphicWrapper =
+            root.querySelector('.mdc-deprecated-list-item__graphic');
 
         assert.notEqual(
             defaultSlot, null, 'default slot exists with no wrapper');
         assert.equal(
-            defaultSlot.parentNode,
-            mdcRoot,
+            defaultSlot.parentNode, mdcRoot,
             'default slot exists with no wrapper');
         assert.equal(
-            primaryTextWrapper,
-            null,
+            primaryTextWrapper, null,
             'no primary-text wrapper (only two line)');
         assert.equal(
-            secondaryTextWrapper,
-            null,
+            secondaryTextWrapper, null,
             'no secondary-text wrapper (only two line)');
         assert.equal(metaWrapper, null, 'no meta wrapper (only two line)');
         assert.equal(
@@ -236,8 +270,7 @@ suite('mwc-list:', () => {
         assert.equal(
             projectedElements.length, 1, 'there is only one projected element');
         assert.equal(
-            primaryTextElement,
-            projectedElements[0],
+            primaryTextElement, projectedElements[0],
             'primary text is projected');
       });
 
@@ -255,18 +288,20 @@ suite('mwc-list:', () => {
         const defaultSlot =
             root.querySelector('slot:not([name])') as HTMLSlotElement;
         const primaryTextWrapper =
-            root.querySelector('.mdc-list-item__primary-text') as HTMLElement;
+            root.querySelector('.mdc-deprecated-list-item__primary-text') as
+            HTMLElement;
         const secondaryTextSlot =
             root.querySelector('slot[name="secondary"]') as HTMLSlotElement;
-        const metaWrapper = root.querySelector('.mdc-list-item__meta');
-        const graphicWrapper = root.querySelector('.mdc-list-item__graphic');
+        const metaWrapper =
+            root.querySelector('.mdc-deprecated-list-item__meta');
+        const graphicWrapper =
+            root.querySelector('.mdc-deprecated-list-item__graphic');
 
         assert.notEqual(defaultSlot, null, 'default slot exists');
         assert.notEqual(
             primaryTextWrapper, null, 'primary text slot wrapper exists');
         assert.equal(
-            defaultSlot.parentNode,
-            primaryTextWrapper,
+            defaultSlot.parentNode, primaryTextWrapper,
             'primary text slot exists');
         assert.notEqual(secondaryTextSlot, null, 'secondary text slot exists');
         assert.equal(metaWrapper, null, 'no meta wrapper (only two line)');
@@ -283,18 +318,15 @@ suite('mwc-list:', () => {
                 .filter(isNodeElement);
 
         assert.equal(
-            primaryProjEls.length,
-            1,
+            primaryProjEls.length, 1,
             'there is only one projected primary text element');
         assert.equal(
             primaryTextElement, primaryProjEls[0], 'primary text is projected');
         assert.equal(
-            secondaryProjEls.length,
-            1,
+            secondaryProjEls.length, 1,
             'there is only one projected secondary text element');
         assert.equal(
-            secondaryTextElement,
-            secondaryProjEls[0],
+            secondaryTextElement, secondaryProjEls[0],
             'secondary text is projected');
       });
 
@@ -311,32 +343,31 @@ suite('mwc-list:', () => {
         await element.updateComplete;
 
         const root = (element.shadowRoot as ShadowRoot);
-        const mdcRoot =
-            root.querySelector('.mdc-list-item__text') as HTMLElement;
+        const mdcRoot = root.querySelector('.mdc-deprecated-list-item__text') as
+            HTMLElement;
         const defaultSlot =
             root.querySelector('slot:not([name])') as HTMLSlotElement;
         const primaryTextWrapper =
-            root.querySelector('.mdc-list-item__primaray-text');
+            root.querySelector('.mdc-deprecated-list-item__primaray-text');
         const secondaryTextWrapper =
-            root.querySelector('.mdc-list-item__secondary-text');
-        const metaWrapper = root.querySelector('.mdc-list-item__meta');
+            root.querySelector('.mdc-deprecated-list-item__secondary-text');
+        const metaWrapper =
+            root.querySelector('.mdc-deprecated-list-item__meta');
         const metaSlot =
             root.querySelector('slot[name="meta"]') as HTMLSlotElement;
-        const graphicWrapper = root.querySelector('.mdc-list-item__graphic');
+        const graphicWrapper =
+            root.querySelector('.mdc-deprecated-list-item__graphic');
 
         assert.notEqual(
             defaultSlot, null, 'default slot exists with no wrapper');
         assert.equal(
-            defaultSlot.parentNode,
-            mdcRoot,
+            defaultSlot.parentNode, mdcRoot,
             'default slot exists with no wrapper');
         assert.equal(
-            primaryTextWrapper,
-            null,
+            primaryTextWrapper, null,
             'no primary-text wrapper (only two line)');
         assert.equal(
-            secondaryTextWrapper,
-            null,
+            secondaryTextWrapper, null,
             'no secondary-text wrapper (only two line)');
         assert.notEqual(metaWrapper, null, 'meta wrapper exists');
         assert.notEqual(metaSlot, null, 'meta slot exists');
@@ -364,32 +395,31 @@ suite('mwc-list:', () => {
         element = fixt.root.querySelector('mwc-list-item')!;
 
         const root = (element.shadowRoot as ShadowRoot);
-        const mdcRoot =
-            root.querySelector('.mdc-list-item__text') as HTMLElement;
+        const mdcRoot = root.querySelector('.mdc-deprecated-list-item__text') as
+            HTMLElement;
         const defaultSlot =
             root.querySelector('slot:not([name])') as HTMLSlotElement;
         const primaryTextWrapper =
-            root.querySelector('.mdc-list-item__primaray-text');
+            root.querySelector('.mdc-deprecated-list-item__primaray-text');
         const secondaryTextWrapper =
-            root.querySelector('.mdc-list-item__secondary-text');
-        const metaWrapper = root.querySelector('.mdc-list-item__meta');
-        const graphicWrapper = root.querySelector('.mdc-list-item__graphic');
+            root.querySelector('.mdc-deprecated-list-item__secondary-text');
+        const metaWrapper =
+            root.querySelector('.mdc-deprecated-list-item__meta');
+        const graphicWrapper =
+            root.querySelector('.mdc-deprecated-list-item__graphic');
         const graphicSlot =
             root.querySelector('slot[name="graphic"]') as HTMLSlotElement;
 
         assert.notEqual(
             defaultSlot, null, 'default slot exists with no wrapper');
         assert.equal(
-            defaultSlot.parentNode,
-            mdcRoot,
+            defaultSlot.parentNode, mdcRoot,
             'default slot exists with no wrapper');
         assert.equal(
-            primaryTextWrapper,
-            null,
+            primaryTextWrapper, null,
             'no primary-text wrapper (only two line)');
         assert.equal(
-            secondaryTextWrapper,
-            null,
+            secondaryTextWrapper, null,
             'no secondary-text wrapper (only two line)');
         assert.equal(metaWrapper, null, 'meta wrapper exists');
         assert.notEqual(
@@ -499,8 +529,7 @@ suite('mwc-list:', () => {
 
         element.click();
         assert.equal(
-            numReqSelectedCalls,
-            0,
+            numReqSelectedCalls, 0,
             'request-selected not called on click on noninteractive');
 
         element.selected = true;
@@ -508,8 +537,7 @@ suite('mwc-list:', () => {
 
         assert.isTrue(element.selected, 'element is selected');
         assert.equal(
-            numReqSelectedCalls,
-            0,
+            numReqSelectedCalls, 0,
             'request-selected not called on noninteractive selected prop');
 
         element.noninteractive = false;
@@ -520,12 +548,10 @@ suite('mwc-list:', () => {
             numReqSelectedCalls, 1, 'request-selected called on click');
         numReqSelectedCalls = 0;
         assert.equal(
-            lastReqSelectedEv.detail.source,
-            'interaction',
+            lastReqSelectedEv.detail.source, 'interaction',
             'interaction event on click');
         assert.notEqual(
-            lastReqSelectedEv.detail.selected,
-            element.selected,
+            lastReqSelectedEv.detail.selected, element.selected,
             'click ev has selected opposite of state');
 
         await element.updateComplete;
@@ -541,12 +567,10 @@ suite('mwc-list:', () => {
             numReqSelectedCalls, 1, 'request-selected called on selected prop');
         numReqSelectedCalls = 0;
         assert.equal(
-            lastReqSelectedEv.detail.source,
-            'property',
+            lastReqSelectedEv.detail.source, 'property',
             'property event on click');
         assert.equal(
-            lastReqSelectedEv.detail.selected,
-            element.selected,
+            lastReqSelectedEv.detail.selected, element.selected,
             'property request selected ev requests for the same as selected state');
       });
 
@@ -638,12 +662,10 @@ suite('mwc-list:', () => {
             numReqSelectedCalls, 1, 'request-selected called on click');
         numReqSelectedCalls = 0;
         assert.equal(
-            lastReqSelectedEv.detail.source,
-            'interaction',
+            lastReqSelectedEv.detail.source, 'interaction',
             'interaction event on click');
         assert.notEqual(
-            lastReqSelectedEv.detail.selected,
-            element.selected,
+            lastReqSelectedEv.detail.selected, element.selected,
             'click ev has selected opposite of state');
 
         await element.updateComplete;
@@ -663,12 +685,10 @@ suite('mwc-list:', () => {
             numReqSelectedCalls, 1, 'request-selected called on selected prop');
         numReqSelectedCalls = 0;
         assert.equal(
-            lastReqSelectedEv.detail.source,
-            'property',
+            lastReqSelectedEv.detail.source, 'property',
             'property event on click');
         assert.equal(
-            lastReqSelectedEv.detail.selected,
-            element.selected,
+            lastReqSelectedEv.detail.selected, element.selected,
             'property request selected ev requests for the same as selected state');
 
         // old versions of safari have a broken click event that does not
@@ -698,17 +718,14 @@ suite('mwc-list:', () => {
           assert.isFalse(
               element.selected, 'element is deselected on checkbox click');
           assert.equal(
-              element.selected,
-              checkbox.checked,
+              element.selected, checkbox.checked,
               'checkbox mirrors element selection state on prop');
           assert.equal(
-              numReqSelectedCalls,
-              1,
+              numReqSelectedCalls, 1,
               'request-selected called on checkbox click');
           numReqSelectedCalls = 0;
           assert.equal(
-              lastReqSelectedEv.detail.source,
-              'interaction',
+              lastReqSelectedEv.detail.source, 'interaction',
               'interaction event on checkbox click');
         }
       });
@@ -807,16 +824,13 @@ suite('mwc-list:', () => {
         await secondElement.updateComplete;
 
         assert.equal(
-            reqSelectedEvts.length,
-            1,
+            reqSelectedEvts.length, 1,
             'request-selected called on click of first');
         assert.equal(
-            reqSelectedEvts[0].detail.source,
-            'interaction',
+            reqSelectedEvts[0].detail.source, 'interaction',
             'interaction event on click');
         assert.notEqual(
-            reqSelectedEvts[0].detail.selected,
-            firstElement.selected,
+            reqSelectedEvts[0].detail.selected, firstElement.selected,
             'click ev has selected opposite of state');
         reqSelectedEvts = [];
 
@@ -834,28 +848,22 @@ suite('mwc-list:', () => {
             firstElement.selected,
             'first element is not selected when set with prop');
         assert.equal(
-            firstRadio.checked,
-            firstElement.selected,
+            firstRadio.checked, firstElement.selected,
             'radio mirrors element selection state on prop');
         assert.notEqual(
-            secondElement.selected,
-            firstElement.selected,
+            secondElement.selected, firstElement.selected,
             'second element is deselected on first element prop set');
         assert.equal(
-            secondRadio.checked,
-            secondElement.selected,
+            secondRadio.checked, secondElement.selected,
             'radio mirrors element selection state on prop');
         assert.equal(
-            reqSelectedEvts.length,
-            1,
+            reqSelectedEvts.length, 1,
             'request-selected called on selected prop, prop set');
         assert.equal(
-            reqSelectedEvts[0].detail.source,
-            'property',
+            reqSelectedEvts[0].detail.source, 'property',
             'property event on click');
         assert.equal(
-            reqSelectedEvts[0].detail.selected,
-            firstElement.selected,
+            reqSelectedEvts[0].detail.selected, firstElement.selected,
             'property request selected ev requests for the same as selected state');
         reqSelectedEvts = [];
 
@@ -870,32 +878,25 @@ suite('mwc-list:', () => {
             secondElement.selected,
             'second element is not selected when set with prop');
         assert.equal(
-            secondRadio.checked,
-            secondElement.selected,
+            secondRadio.checked, secondElement.selected,
             'radio mirrors element selection state on prop');
         assert.notEqual(
-            secondElement.selected,
-            firstElement.selected,
+            secondElement.selected, firstElement.selected,
             'first element is deselected on first element prop set');
         assert.equal(
-            firstRadio.checked,
-            firstElement.selected,
+            firstRadio.checked, firstElement.selected,
             'radio mirrors element selection state on prop');
         assert.equal(
-            reqSelectedEvts.length,
-            2,
+            reqSelectedEvts.length, 2,
             'request-selected called on selected prop, prop set and interaction');
         assert.equal(
-            reqSelectedEvts[0].detail.source,
-            'property',
+            reqSelectedEvts[0].detail.source, 'property',
             'property event on click');
         assert.equal(
-            reqSelectedEvts[0].detail.selected,
-            secondElement.selected,
+            reqSelectedEvts[0].detail.selected, secondElement.selected,
             'property request selected ev requests for the same as selected state');
         assert.equal(
-            reqSelectedEvts[1].detail.source,
-            'interaction',
+            reqSelectedEvts[1].detail.source, 'interaction',
             'interaction event on radio deselection on first prop set');
         reqSelectedEvts = [];
 
@@ -909,28 +910,22 @@ suite('mwc-list:', () => {
         assert.isTrue(
             firstElement.selected, 'first element is selected on radio click');
         assert.equal(
-            firstRadio.checked,
-            firstElement.selected,
+            firstRadio.checked, firstElement.selected,
             'radio mirrors element selection state on click');
         assert.notEqual(
-            firstElement.selected,
-            secondElement.selected,
+            firstElement.selected, secondElement.selected,
             'element is deselected on radio click');
         assert.equal(
-            firstRadio.checked,
-            firstElement.selected,
+            firstRadio.checked, firstElement.selected,
             'radio mirrors element selection state on interaction');
         assert.equal(
-            reqSelectedEvts.length,
-            2,
+            reqSelectedEvts.length, 2,
             'request-selected called on radio click');
         assert.equal(
-            reqSelectedEvts[0].detail.source,
-            'interaction',
+            reqSelectedEvts[0].detail.source, 'interaction',
             'interaction event on radio click');
         assert.equal(
-            reqSelectedEvts[1].detail.source,
-            'interaction',
+            reqSelectedEvts[1].detail.source, 'interaction',
             'interaction event on radio click');
         reqSelectedEvts = [];
       });
@@ -959,8 +954,7 @@ suite('mwc-list:', () => {
         element = fixt.root.querySelector('mwc-list')!;
 
         assert.equal(
-            element.selected,
-            null,
+            element.selected, null,
             'empty list `selected` initializes as `null`');
         assert.equal(
             element.items.length, 0, 'empty list `items` initializes as `[]`');
@@ -973,12 +967,10 @@ suite('mwc-list:', () => {
         const selected = element.selected as ListItem[];
 
         assert.equal(
-            selected.length,
-            0,
+            selected.length, 0,
             'empty multi list `selected` initializes as `[]`');
         assert.equal(
-            element.items.length,
-            0,
+            element.items.length, 0,
             'empty multi list `items` initializes as `[]`');
 
         const index = element.index as Set<number>;
@@ -990,12 +982,10 @@ suite('mwc-list:', () => {
         await element.updateComplete;
 
         assert.equal(
-            element.selected,
-            null,
+            element.selected, null,
             'multi -> not list `selected` initializes as `null`');
         assert.equal(
-            element.items.length,
-            0,
+            element.items.length, 0,
             'multi -> not list `items` initializes as `[]`');
         assert.equal(
             element.index, -1, 'multi -> not list `index` initializes as `-1`');
@@ -1015,8 +1005,7 @@ suite('mwc-list:', () => {
         assert.equal(
             element.items.length, 3, '`items` are enumerated correctly');
         assert.equal(
-            element.index,
-            -1,
+            element.index, -1,
             'list with no selected children `index` initializes as `-1`');
       });
 
@@ -1040,8 +1029,7 @@ suite('mwc-list:', () => {
         element = fixt.root.querySelector('mwc-list')!;
 
         assert.equal(
-            element.selected,
-            null,
+            element.selected, null,
             'empty list `selected` initializes as `null`');
         assert.equal(
             element.items.length, 0, 'empty list `items` initializes as `[]`');
@@ -1056,8 +1044,7 @@ suite('mwc-list:', () => {
         await items[2].updateComplete;
 
         assert.equal(
-            element.selected,
-            items[1],
+            element.selected, items[1],
             'second item is selected on lazy startup');
         assert.equal(
             element.items.length, 3, 'list has three items on lazy startup');
@@ -1077,8 +1064,7 @@ suite('mwc-list:', () => {
         assert.equal(
             element.items.length, 3, '`items` are enumerated correctly');
         assert.equal(
-            index.size,
-            0,
+            index.size, 0,
             'multi list with no selected children `index` initializes as empty set');
       });
 
@@ -1097,16 +1083,14 @@ suite('mwc-list:', () => {
         let index = element.index as Set<number>;
 
         assert.equal(
-            selected.length,
-            1,
+            selected.length, 1,
             '`selected` initializes as correctly with single preselection');
         assert.isTrue(
             selected.indexOf(items[1]) !== -1, 'selected value is correct');
         assert.equal(
             element.items.length, 3, '`items` are enumerated correctly');
         assert.equal(
-            index.size,
-            1,
+            index.size, 1,
             'multi list with selected child `index` initializes as correctly sized set');
         assert.isTrue(
             index.has(1), 'multi list with selected child `index` is correct');
@@ -1127,16 +1111,14 @@ suite('mwc-list:', () => {
         index = element.index as Set<number>;
 
         assert.equal(
-            selected.length,
-            2,
+            selected.length, 2,
             '`selected` initializes as correctly with multiple preselections');
         assert.isTrue(
             selected.indexOf(items[0]) !== -1, 'selected values are correct');
         assert.isTrue(
             selected.indexOf(items[2]) !== -1, 'selected values are correct');
         assert.equal(
-            index.size,
-            2,
+            index.size, 2,
             'multi list with selected child `index` initializes as correctly sized set');
         assert.isTrue(
             index.has(0),
@@ -1148,9 +1130,7 @@ suite('mwc-list:', () => {
 
       test('multi lazy', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true}),
-          listItem({selected: true})
+          listItem(), listItem({selected: true}), listItem({selected: true})
         ];
         fixt = await fixture(listTemplate({multi: true}));
         element = fixt.root.querySelector('mwc-list')!;
@@ -1176,8 +1156,7 @@ suite('mwc-list:', () => {
         index = element.index as Set<number>;
 
         assert.equal(
-            selected.length,
-            2,
+            selected.length, 2,
             'list has correct num of selections on lazy startup');
         assert.isTrue(
             selected.indexOf(items[1]) !== -1,
@@ -1188,8 +1167,7 @@ suite('mwc-list:', () => {
         assert.equal(
             element.items.length, 3, 'list has three items on lazy startup');
         assert.equal(
-            index.size,
-            2,
+            index.size, 2,
             'list has correct number of indices on lazy startup');
         assert.isTrue(index.has(1), 'indicies are correct on lazy startup');
         assert.isTrue(index.has(2), 'indicies are correct on lazy startup');
@@ -1204,16 +1182,13 @@ suite('mwc-list:', () => {
         const divider = element.querySelector('li')!;
 
         assert.equal(
-            items[0].getAttribute('role'),
-            'option',
+            items[0].getAttribute('role'), 'option',
             'item role propagates correctly');
         assert.equal(
-            items[1].getAttribute('role'),
-            'option',
+            items[1].getAttribute('role'), 'option',
             'item role propagates correctly');
         assert.equal(
-            divider.getAttribute('role'),
-            'separator',
+            divider.getAttribute('role'), 'separator',
             'divider role propagates correctly');
       });
 
@@ -1225,8 +1200,7 @@ suite('mwc-list:', () => {
         const items = element.items;
 
         assert.equal(
-            items[0].tabIndex,
-            -1,
+            items[0].tabIndex, -1,
             'noninteractive sets tabindex -1 on previously tabbable');
         assert.equal(
             items[1].tabIndex, -1, 'other items are still tabindex -1');
@@ -1235,8 +1209,7 @@ suite('mwc-list:', () => {
         await element.updateComplete;
 
         assert.equal(
-            items[0].tabIndex,
-            0,
+            items[0].tabIndex, 0,
             'previously tabbable element is now set to tabbable again');
         assert.equal(
             items[1].tabIndex, -1, 'other items are still tabindex -1');
@@ -1252,9 +1225,7 @@ suite('mwc-list:', () => {
     suite('single', () => {
       test('click selection', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(
             listTemplate({items: itemsTemplates, activatable: true}));
@@ -1281,9 +1252,7 @@ suite('mwc-list:', () => {
 
       test('no deselection on click', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(
             listTemplate({items: itemsTemplates, activatable: true}));
@@ -1305,9 +1274,7 @@ suite('mwc-list:', () => {
 
       test('prop selection', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(
             listTemplate({items: itemsTemplates, activatable: true}));
@@ -1330,16 +1297,13 @@ suite('mwc-list:', () => {
             'second item is deactivated after other is selected');
         assert.equal(element.index, 2, 'index is correct after prop selection');
         assert.equal(
-            element.selected,
-            items[2],
+            element.selected, items[2],
             'selected is correct after prop selection');
       });
 
       test('prop deselection', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(
             listTemplate({items: itemsTemplates, activatable: true}));
@@ -1363,9 +1327,7 @@ suite('mwc-list:', () => {
 
       test('index selection', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(
             listTemplate({items: itemsTemplates, activatable: true}));
@@ -1390,16 +1352,13 @@ suite('mwc-list:', () => {
         assert.equal(
             element.index, 2, 'index is correct after index selection');
         assert.equal(
-            element.selected,
-            items[2],
+            element.selected, items[2],
             'selected is correct after index selection');
       });
 
       test('index deselection', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(
             listTemplate({items: itemsTemplates, activatable: true}));
@@ -1451,20 +1410,16 @@ suite('mwc-list:', () => {
             items[1].activated,
             'second item is still activated after disconnect');
         assert.equal(
-            element.index,
-            -1,
+            element.index, -1,
             'index is reset to null on selected item disconnect');
         assert.equal(
-            element.selected,
-            null,
+            element.selected, null,
             'selected is null on selected item disconnect');
       });
 
       test('single to multi', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(listTemplate({items: itemsTemplates}));
         element = fixt.root.querySelector('mwc-list')!;
@@ -1496,9 +1451,7 @@ suite('mwc-list:', () => {
     suite('multi', () => {
       test('click selection', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(listTemplate(
             {multi: true, items: itemsTemplates, activatable: true}));
@@ -1536,9 +1489,7 @@ suite('mwc-list:', () => {
 
       test('deselection on click', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(listTemplate(
             {multi: true, items: itemsTemplates, activatable: true}));
@@ -1562,9 +1513,7 @@ suite('mwc-list:', () => {
 
       test('prop selection', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(listTemplate(
             {multi: true, items: itemsTemplates, activatable: true}));
@@ -1593,8 +1542,7 @@ suite('mwc-list:', () => {
         assert.isTrue(index.has(1), 'index is correct after prop selection');
         assert.isTrue(index.has(2), 'index is correct after prop selection');
         assert.equal(
-            selected.length,
-            2,
+            selected.length, 2,
             'correct number of selected after prop selection');
         assert.isTrue(
             selected.indexOf(items[1]) !== -1,
@@ -1606,9 +1554,7 @@ suite('mwc-list:', () => {
 
       test('prop deselection', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(listTemplate(
             {multi: true, items: itemsTemplates, activatable: true}));
@@ -1635,9 +1581,7 @@ suite('mwc-list:', () => {
 
       test('index selection', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(listTemplate(
             {multi: true, items: itemsTemplates, activatable: true}));
@@ -1672,8 +1616,7 @@ suite('mwc-list:', () => {
         assert.isTrue(index.has(0), 'index is correct after index selection');
         assert.isTrue(index.has(2), 'index is correct after index selection');
         assert.equal(
-            selected.length,
-            2,
+            selected.length, 2,
             'correct number of selected after index selection');
         assert.isTrue(
             selected.indexOf(items[0]) !== -1,
@@ -1683,11 +1626,73 @@ suite('mwc-list:', () => {
             'selected is correct after index selection');
       });
 
+      test('multi index selection diff', async () => {
+        const itemsTemplate = [
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+        ];
+        fixt = await fixture(listTemplate({items: itemsTemplate, multi: true}));
+        element = fixt.root.querySelector('mwc-list')!;
+        let lastDiff: IndexDiff|null = null;
+        element.addEventListener(
+            'selected', ((event: CustomEvent<SelectedDetail<Set<number>>>) => {
+                          lastDiff = event.detail.diff;
+                        }) as EventListener);
+
+        element.select(new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
+        await element.updateComplete;
+
+        assert.ok(lastDiff);
+        if (!lastDiff) {
+          return;
+        }
+        asssertDiffsEqual(lastDiff, {
+          added: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+          removed: [],
+        });
+
+        lastDiff = null;
+
+        element.select(new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+        await element.updateComplete;
+
+        assert.ok(lastDiff);
+        if (!lastDiff) {
+          return;
+        }
+        asssertDiffsEqual(lastDiff, {
+          added: [10],
+          removed: [],
+        });
+
+        lastDiff = null;
+
+        element.select(new Set([3, 4, 5, 6, 11]));
+        await element.updateComplete;
+
+        assert.ok(lastDiff);
+        if (!lastDiff) {
+          return;
+        }
+        asssertDiffsEqual(lastDiff, {
+          added: [11],
+          removed: [0, 1, 2, 7, 8, 9, 10],
+        });
+      });
+
       test('index deselection', async () => {
         const itemsTemplates = [
-          listItem(),
-          listItem({selected: true, activated: true}),
-          listItem()
+          listItem(), listItem({selected: true, activated: true}), listItem()
         ];
         fixt = await fixture(listTemplate(
             {multi: true, items: itemsTemplates, activatable: true}));
@@ -1716,7 +1721,15 @@ suite('mwc-list:', () => {
         const itemsTemplates = [
           listItem(),
           listItem({selected: true}),
-          listItem({selected: true})
+          listItem({selected: true}),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
+          listItem(),
         ];
         fixt =
             await fixture(listTemplate({multi: true, items: itemsTemplates}));
@@ -1790,30 +1803,28 @@ suite('mwc-list:', () => {
     });
 
     suite('performance issue', () => {
-      test(
-          'removing a list should not call layout more than once', async () => {
-            let count = 0;
-            const originalLayout = List.prototype.layout;
-            List.prototype.layout = function(update) {
-              originalLayout.call(this, update);
-              count++;
-            };
+      test('removing list should not call layout more than once', async () => {
+        let count = 0;
+        const originalLayout = List.prototype.layout;
+        List.prototype.layout = function(update) {
+          originalLayout.call(this, update);
+          count++;
+        };
 
-            const itemsTemplates = new Array(100).fill(0).map(() => listItem());
-            fixt = await fixture(listTemplate({items: itemsTemplates}));
-            element = fixt.root.querySelector('mwc-list')!;
+        const itemsTemplates = new Array(100).fill(0).map(() => listItem());
+        fixt = await fixture(listTemplate({items: itemsTemplates}));
+        element = fixt.root.querySelector('mwc-list')!;
 
-            count = 0;
+        count = 0;
 
-            fixt.remove();
-            await element.updateComplete;
-            fixt = null;
-            assert.equal(
-                count,
-                1,
-                'list.layout ran more than once while it shouldn\'t have');
-            List.prototype.layout = originalLayout;
-          });
+        fixt.remove();
+        await element.updateComplete;
+        fixt = null;
+        assert.equal(
+            count, 1,
+            'list.layout ran more than once while it shouldn\'t have');
+        List.prototype.layout = originalLayout;
+      });
     });
   });
 });

@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import {ariaProperty} from '@material/mwc-base/aria-property';
 import {addHasRemoveClass, FormElement} from '@material/mwc-base/form-element';
 import {observer} from '@material/mwc-base/observer';
 import {SingleSelectionController} from '@material/mwc-radio/single-selection-controller';
@@ -23,6 +24,7 @@ import {MDCRadioAdapter} from '@material/radio/adapter';
 import MDCRadioFoundation from '@material/radio/foundation';
 import {eventOptions, html, internalProperty, property, query, queryAsync, TemplateResult} from 'lit-element';
 import {classMap} from 'lit-html/directives/class-map';
+import {ifDefined} from 'lit-html/directives/if-defined';
 
 
 /**
@@ -34,12 +36,12 @@ export class RadioBase extends FormElement {
 
   @query('input') protected formElement!: HTMLInputElement;
 
-  private _checked = false;
+  protected _checked = false;
 
   @property({type: Boolean}) global = false;
 
   @property({type: Boolean, reflect: true})
-  get checked() {
+  get checked(): boolean {
     return this._checked;
   }
 
@@ -117,7 +119,7 @@ export class RadioBase extends FormElement {
 
   protected mdcFoundation!: MDCRadioFoundation;
 
-  private _selectionController?: SingleSelectionController;
+  protected _selectionController?: SingleSelectionController;
 
   /**
    * input's tabindex is updated based on checked status.
@@ -129,7 +131,15 @@ export class RadioBase extends FormElement {
 
   @queryAsync('mwc-ripple') ripple!: Promise<Ripple|null>;
 
-  private rippleElement: Ripple|null = null;
+  /** @soyPrefixAttribute */
+  @ariaProperty @property({attribute: 'aria-label'}) ariaLabel?: string;
+
+  /** @soyPrefixAttribute */
+  @ariaProperty
+  @property({attribute: 'aria-labelledby'})
+  ariaLabelledBy?: string;
+
+  protected rippleElement: Ripple|null = null;
 
   protected rippleHandlers: RippleHandlers = new RippleHandlers(() => {
     this.shouldRenderRipple = true;
@@ -197,16 +207,16 @@ export class RadioBase extends FormElement {
     };
   }
 
-  private handleFocus() {
+  protected handleFocus() {
     this.handleRippleFocus();
   }
 
-  private handleClick() {
+  protected handleClick() {
     // Firefox has weird behavior with radios if they are not focused
     this.formElement.focus();
   }
 
-  private handleBlur() {
+  protected handleBlur() {
     this.formElement.blur();
     this.rippleHandlers.endFocus();
   }
@@ -230,6 +240,8 @@ export class RadioBase extends FormElement {
           class="mdc-radio__native-control"
           type="radio"
           name="${this.name}"
+          aria-label="${ifDefined(this.ariaLabel)}"
+          aria-labelledby="${ifDefined(this.ariaLabelledBy)}"
           .checked="${this.checked}"
           .value="${this.value}"
           ?disabled="${this.disabled}"

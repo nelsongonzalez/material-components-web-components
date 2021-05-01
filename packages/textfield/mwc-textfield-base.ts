@@ -200,10 +200,9 @@ export abstract class TextFieldBase extends FormElement {
 
   @property({type: String}) autocapitalize = '';
 
-  @property({type: Boolean}) protected outlineOpen = false;
-  @property({type: Number}) protected outlineWidth = 0;
-  @property({type: Boolean}) protected isUiValid = true;
-
+  @internalProperty() protected outlineOpen = false;
+  @internalProperty() protected outlineWidth = 0;
+  @internalProperty() protected isUiValid = true;
   @internalProperty() protected focused = false;
 
   protected _validity: ValidityState = createValidityObj();
@@ -347,7 +346,8 @@ export abstract class TextFieldBase extends FormElement {
   }
 
   /** @soyTemplate */
-  protected renderIcon(icon: string, isTrailingIcon = false): TemplateResult {
+  protected renderIcon(icon: string, isTrailingIcon: boolean = false):
+      TemplateResult {
     /** @classMap */
     const classes = {
       'mdc-text-field__icon--leading': !isTrailingIcon,
@@ -369,8 +369,8 @@ export abstract class TextFieldBase extends FormElement {
   }
 
   /** @soyTemplate */
-  protected renderAffix(content: string, isSuffix = false): TemplateResult
-      |string {
+  protected renderAffix(content: string, isSuffix: boolean = false):
+      TemplateResult|string {
     /** @classMap */
     const classes = {
       'mdc-text-field__affix--prefix': !isSuffix,
@@ -632,9 +632,24 @@ export abstract class TextFieldBase extends FormElement {
     };
   }
 
+  // tslint:disable:ban-ts-ignore
   async _getUpdateComplete() {
-    await super._getUpdateComplete();
+    let result = false;
+    // @ts-ignore
+    if (super._getUpdateComplete) {
+      // @ts-ignore
+      await super._getUpdateComplete();
+    } else {
+      // @ts-ignore
+      result = await super.getUpdateComplete();
+    }
     await this._outlineUpdateComplete;
+    return result;
+  }
+  // tslint:enable:ban-ts-ignore
+
+  async getUpdateComplete() {
+    return this._getUpdateComplete();
   }
 
   async firstUpdated() {

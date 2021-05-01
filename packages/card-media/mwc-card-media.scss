@@ -14,7 +14,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+@use '@material/ripple/ripple-theme' as mdc-ripple-theme;
+@use '@material/mwc-ripple/ripple-theme';
+@import '@material/card/mdc-card.scss';
+@import '@material/theme/_mixins.scss';
 
-@use '@material/ripple';
+:host {
+  display: flex;
+  @include mdc-theme-prop(border-radius, (
+    varname: --mdc-card-media-border-radius,
+    fallback: 0
+  ));
 
-@include ripple.keyframes_();
+}
+
+.mdc-card__media {
+  flex: 1;
+  background-color: inherit;
+  border-radius: inherit;
+  @include mdc-theme-prop(background-image, (
+    varname: --mdc-card-media-background-image,
+    fallback: none
+  ));
+}
+

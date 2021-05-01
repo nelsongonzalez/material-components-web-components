@@ -1,6 +1,6 @@
 {
   "name": "@nelsongonzalez/mwc-card-media",
-  "version": "0.20.0",
+  "version": "0.21.1",
   "description": "",
   "main": "mwc-card-media.js",
   "scripts": {
@@ -14,8 +14,8 @@
     "directory": "packages/card-media"
   },
   "dependencies": {
-    "@material/card": "=9.0.0-canary.30fdfd06e.0",
-    "lit-element": "^2.3.0"
+    "@material/card": "=12.0.0-canary.197f64fa2.0",
+    "lit-element": "~2.4.0"
   },
   "publishConfig": {
     "registry":"https://npm.pkg.github.com"

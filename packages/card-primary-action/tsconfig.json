@@ -2,17 +2,22 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "composite": true,
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": ".",
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "include": [
-    "src/*.ts"
-  ],
-  "references": [
-    {"path": "../base"}
+    "*.ts"
   ],
   "exclude": [
-    "src/test/*.ts"
+    "test/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../base"
+    },
+    {
+      "path": "../ripple"
+    }
   ]
 }

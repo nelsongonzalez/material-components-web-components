@@ -1,6 +1,6 @@
 {
   "name": "@material/mwc-icon",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "description": "Material Design icon web component",
   "keywords": [
     "material design",
@@ -16,7 +16,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "lit-element": "^2.3.0",
+    "lit-element": "~2.4.0",
     "tslib": "^2.0.1"
   },
   "publishConfig": {

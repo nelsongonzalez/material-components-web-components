@@ -14,11 +14,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import {ripple} from '@material/mwc-ripple/ripple-directive.js';
-import {html, LitElement, property} from 'lit-element';
+
+import '@material/mwc-ripple/mwc-ripple';
+
+import {Ripple} from '@material/mwc-ripple/mwc-ripple';
+import {RippleHandlers} from '@material/mwc-ripple/ripple-handlers';
+import {html, LitElement, property, queryAsync, internalProperty, TemplateResult} from 'lit-element';
 
 export class CardPrimaryActionBase extends LitElement {
   @property() label = '';
+
+  @queryAsync('mwc-ripple') ripple!: Promise<Ripple|null>;
+
+  @internalProperty() protected shouldRenderRipple = false;
+
+  protected rippleHandlers = new RippleHandlers(() => {
+    this.shouldRenderRipple = true;
+    return this.ripple;
+  });
+
+  /** @soyTemplate */
+  protected renderRipple(): TemplateResult|string {
+    return this.shouldRenderRipple ?
+        html`<mwc-ripple class="mdc-card__ripple ripple"></mwc-ripple>` :
+        '';
+  }
 
   createRenderRoot() {
     return this.attachShadow({mode: 'open', delegatesFocus: true});
@@ -26,13 +46,10 @@ export class CardPrimaryActionBase extends LitElement {
 
   render() {
     return html`
-      <div
-        .ripple=${ripple({
-      unbounded: false
-    })}
-        class="mdc-card__primary-action"
+      <div class="mdc-card__primary-action"
         tabindex="0"
         aria-label="${this.label}">
+          ${this.renderRipple()}
           <slot></slot>
       </div>`;
   }

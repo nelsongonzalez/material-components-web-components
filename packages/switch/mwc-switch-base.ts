@@ -16,13 +16,15 @@ limitations under the License.
 */
 import '@material/mwc-ripple/mwc-ripple';
 
+import {ariaProperty} from '@material/mwc-base/aria-property';
 import {addHasRemoveClass, FormElement} from '@material/mwc-base/form-element';
 import {observer} from '@material/mwc-base/observer';
 import {Ripple} from '@material/mwc-ripple/mwc-ripple';
 import {RippleHandlers} from '@material/mwc-ripple/ripple-handlers';
-import {MDCSwitchAdapter} from '@material/switch/adapter';
-import MDCSwitchFoundation from '@material/switch/foundation';
+import {MDCSwitchAdapter} from '@material/switch/deprecated/adapter';
+import MDCSwitchFoundation from '@material/switch/deprecated/foundation';
 import {eventOptions, html, internalProperty, property, query, queryAsync} from 'lit-element';
+import {ifDefined} from 'lit-html/directives/if-defined';
 
 export class SwitchBase extends FormElement {
   @property({type: Boolean})
@@ -37,6 +39,14 @@ export class SwitchBase extends FormElement {
   })
   disabled = false;
 
+  /** @soyPrefixAttribute */
+  @ariaProperty @property({attribute: 'aria-label'}) ariaLabel?: string;
+
+  /** @soyPrefixAttribute */
+  @ariaProperty
+  @property({attribute: 'aria-labelledby'})
+  ariaLabelledBy?: string;
+
   @query('.mdc-switch') protected mdcRoot!: HTMLElement;
 
   @query('input') protected formElement!: HTMLInputElement;
@@ -47,7 +57,7 @@ export class SwitchBase extends FormElement {
 
   protected mdcFoundation!: MDCSwitchFoundation;
 
-  private changeHandler(e: Event) {
+  protected changeHandler(e: Event) {
     this.mdcFoundation.handleChange(e);
     // catch "click" event and sync properties
     this.checked = this.formElement.checked;
@@ -77,7 +87,7 @@ export class SwitchBase extends FormElement {
 
   protected renderRipple() {
     return this.shouldRenderRipple ? html`
-        <mwc-ripple 
+        <mwc-ripple
           .accent="${this.checked}"
           .disabled="${this.disabled}"
           unbounded>
@@ -113,6 +123,8 @@ export class SwitchBase extends FormElement {
               id="basic-switch"
               class="mdc-switch__native-control"
               role="switch"
+              aria-label="${ifDefined(this.ariaLabel)}"
+              aria-labelledby="${ifDefined(this.ariaLabelledBy)}"
               @change="${this.changeHandler}"
               @focus="${this.handleRippleFocus}"
               @blur="${this.handleRippleBlur}"
@@ -144,23 +156,23 @@ export class SwitchBase extends FormElement {
     this.rippleHandlers.startPress(event);
   }
 
-  private handleRippleDeactivate() {
+  protected handleRippleDeactivate() {
     this.rippleHandlers.endPress();
   }
 
-  private handleRippleMouseEnter() {
+  protected handleRippleMouseEnter() {
     this.rippleHandlers.startHover();
   }
 
-  private handleRippleMouseLeave() {
+  protected handleRippleMouseLeave() {
     this.rippleHandlers.endHover();
   }
 
-  private handleRippleFocus() {
+  protected handleRippleFocus() {
     this.rippleHandlers.startFocus();
   }
 
-  private handleRippleBlur() {
+  protected handleRippleBlur() {
     this.rippleHandlers.endFocus();
   }
 }

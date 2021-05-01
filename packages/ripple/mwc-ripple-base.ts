@@ -14,16 +14,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import {matches} from '@material/dom/ponyfill';
 import {BaseElement} from '@material/mwc-base/base-element';
+import {RippleInterface} from '@material/mwc-base/utils';
 import {MDCRippleAdapter} from '@material/ripple/adapter';
 import MDCRippleFoundation from '@material/ripple/foundation';
-import {html, internalProperty, property, query, TemplateResult} from 'lit-element';
+import {html, internalProperty, property, PropertyValues, query, TemplateResult} from 'lit-element';
 import {classMap} from 'lit-html/directives/class-map';
 import {styleMap} from 'lit-html/directives/style-map';
-import {RippleAPI} from './ripple-handlers';
 
 /** @soyCompatible */
-export class RippleBase extends BaseElement implements RippleAPI {
+export class RippleBase extends BaseElement implements RippleInterface {
   @query('.mdc-ripple-surface') mdcRoot!: HTMLElement;
 
   @property({type: Boolean}) primary = false;
@@ -38,32 +39,32 @@ export class RippleBase extends BaseElement implements RippleAPI {
 
   @property({type: Boolean}) selected = false;
 
-  @internalProperty() private hovering = false;
+  @internalProperty() protected hovering = false;
 
-  @internalProperty() private bgFocused = false;
+  @internalProperty() protected bgFocused = false;
 
-  @internalProperty() private fgActivation = false;
+  @internalProperty() protected fgActivation = false;
 
-  @internalProperty() private fgDeactivation = false;
+  @internalProperty() protected fgDeactivation = false;
 
-  @internalProperty() private fgScale = '';
+  @internalProperty() protected fgScale = '';
 
-  @internalProperty() private fgSize = '';
+  @internalProperty() protected fgSize = '';
 
-  @internalProperty() private translateStart = '';
+  @internalProperty() protected translateStart = '';
 
-  @internalProperty() private translateEnd = '';
+  @internalProperty() protected translateEnd = '';
 
-  @internalProperty() private leftPos = '';
+  @internalProperty() protected leftPos = '';
 
-  @internalProperty() private topPos = '';
+  @internalProperty() protected topPos = '';
 
   protected mdcFoundationClass = MDCRippleFoundation;
 
   protected mdcFoundation!: MDCRippleFoundation;
 
   get isActive() {
-    return (this.parentElement || this).matches(':active');
+    return matches(this.parentElement || this, ':active');
   }
 
   createAdapter(): MDCRippleAdapter {
@@ -181,6 +182,18 @@ export class RippleBase extends BaseElement implements RippleAPI {
     } else {
       this.updateComplete.then(fn);
     }
+  }
+
+  protected update(changedProperties: PropertyValues<this>) {
+    if (changedProperties.has('disabled')) {
+      // stop hovering when ripple is disabled to prevent a stuck "hover" state
+      // When re-enabled, the outer component will get a `mouseenter` event on
+      // the first movement, which will call `startHover()`
+      if (this.disabled) {
+        this.endHover();
+      }
+    }
+    super.update(changedProperties);
   }
 
   /** @soyTemplate */

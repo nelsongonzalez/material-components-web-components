@@ -216,6 +216,7 @@ Name                      | Type                          | Default            |
 `value`                   | `string`                      | `""`               | The select control's value determined by the `value` property of the currently selected list item. Setting value will attempt to select a list-item with the same value. If one does not match, it will set itself to `""` and the `index` to `-1`. Setting `value` before the list item is attached will not select the item.
 `label`                   | `string`                      | `""`               | Sets floating label value. __NOTE:__ The label will not float if the selected item has a falsey value property.
 `naturalMenuWidth`        | `string`                      | `false`            | Sets the dropdown menu's width to `auto`.
+`fixedMenuPosition`       | `boolean`                     | `false`            | Sets the dropdown menu's position to `fixed`. This is useful when the select is inside of a stacking context e.g. inside of an `mwc-dialog`. Note, that [`--mdc-menu-min-width`](https://github.com/material-components/material-components-web-components/tree/master/packages/menu#css-custom-properties) or [`--mdc-menu-max-width`](https://github.com/material-components/material-components-web-components/tree/master/packages/menu#css-custom-properties) may have to be set to resize the menu to the width anchor.
 `icon`                    | `string`                      | `""`               | Leading icon to display in select. See [`mwc-icon`](https://github.com/material-components/material-components-web-components/tree/master/packages/icon). _Note_: for proper list spacing, each list item must have `graphic="icon"` or `graphic="avatar"` to be set.
 `disabled`                | `boolean`                     | `false`            | Whether or not the select should be disabled.
 `outlined`                | `boolean`                     | `false`            | Whether or not to show the material outlined variant.
@@ -247,6 +248,7 @@ Name                                          | Description
 `setCustomValidity(message:string) => void`   | Sets a custom validity message (also overwrites `validationMessage`). If this message is not the empty string, then the element is suffering from a custom validity error and does not validate.
 `select(index: number) => void`               | Selects the element at the given index.
 `layout(updateItems = true) => Promise<void>` | Resets tabindex on all items and will update `items` model if provided true. It may be required to call layout if selectability of an element is dynamically changed. e.g. `[mwc-list-item]` attribute is removed from a list item or `noninteractive` is dynamically set on a list item. Also re-calculates layout. If a select is styled with `display:none` before it is first rendered, and it has a label that is floating, then you must call `layout()` the first time you remove `display:none`, or else the notch surrounding the label will not render correctly.
+`layoutOptions() => Promise<void>` | Synchronizes the list of options with the model of the component and updates the selected text. Call this if the selected item is dynamically updated in value or text.
 
 ### Events
 
@@ -254,7 +256,6 @@ Name                                          | Description
 | ---------- | -------------------- | ----------------- | -------------------- |
 | `opened`   | `mwc-select-surface` | none              | Fired menu opens.    |
 | `closed`   | `mwc-select-surface` | none              | Fired menu closes.   |
-| `action`   | `mwc-list`           | `ActionDetail`*   | Fired when a selection has been made via click or keyboard action. |
 | `selected` | `mwc-list`           | `SelectedDetail`* | Fired when a selection has been made. Property `index` is the selected index (will  be of type `number`) |
 
 \* See

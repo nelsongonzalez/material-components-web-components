@@ -4,17 +4,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+<!-- ## Unreleased -->
+
+## [v0.21.0] - 2021-04-30
 
 ### Changed
+
+- all
+  - Upgrade typescript to 4.1.4
+  - Change all fields from `private` to `protected`
+- `base`
+  - Clean up RippleInterface now that the ripple directive has been removed
+  - Remove `HTMLElementWithRipple` interface
+  - Clean up `ripple` property typing
 - `checkbox`
   - Remove underscores from internal event handler functions
+- `ripple`
+  - Use css.declaration in ripple-theme.scss
+  - Remove RippleAPI interface, merged with RippleInterface in base
+  - Remove mwc-ripple-global.scss, which was only used for the ripple directive
+- `menu`
+  - Added new `closing` event triggering any immediate action that must be taken
+    without waiting for animations to finish.
+  - BREAKING(VISUAL): Added a min-width of 112px to be in line with material
+    spec.
+- `select`
+  - Added `fixedMenuPosition` to allow menu overlaying in nested absolute
+    contexts e.g. dialog.
 
 ### Fixed
+
+- all
+  - Format sass files with prettier
+- `circular-progress`
+  - Support setting `aria-label` attribute
+- `dialog`
+  - Blocking elements will not throw if dialog is closed and removed from DOM
+    before opening animation is completed.
+  - Memory leak with document event listener
+  - Only bind event listeners once in `firstUpdated`
+- `fab`
+  - Added missing documentation for extended-(label|icon)-padding custom props
 - `FormElement`
   - FormElement checks if `change` event re-refiring is needed
+- `icon-button`
+  - Fixed `label` property to use `aria-label` attribute
+- `icon-button-toggle`
+  - Fixed `label` property to use `aria-label` attribute
+- `linear-progress`
+  - Fixed `ariaLabel` property to use `aria-label` attribute
+- `list`
+  - Fix issue with diff indices of different digit length
+- `ripple`
+  - Fix IE11 errors with `isActive()`
+  - Fix cases where `hover` effect is stuck when toggling `disabled`
+- `select`
+  - menu not opening when disabled initially set
 - `tab`
   - Clean up fixture typing so that tests work when reordered
+
+### Added
+
+- `base`
+  - Add `@ariaProperty` decorator
+- `checkbox`
+  - Add `ariaLabel`, `ariaLabelledBy`, `ariaDescribedBy`, and `name` properties
+- `fab`
+  - Added `--mdc-fab-focus-outline-color`
+  - Added `--mdc-fab-focus-outline-width`
+- `select`
+  - Forwarded `layoutOptions` method from foundation
+- `switch`
+  - Add `ariaLabel` and `ariaLabelledBy` properties
+- `radio`
+  - Add `ariaLabel` and `ariaLabelledBy`
+- `slider`
+  - Add `ariaLabel` and `ariaLabelledBy`
 
 ## [v0.20.0] - 2020-12-03
 

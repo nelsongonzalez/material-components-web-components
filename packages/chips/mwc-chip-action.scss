@@ -14,19 +14,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import {customElement} from 'lit-element';
 
-import {ChipSetBase} from './mwc-chip-set-base.js';
-import {style} from './mwc-chip-set-css.js';  // TODO: split chip-set and chip styles in MDC
+// @import '@material/chips/_chip.scss';
+@use '@material/chips/_chip';
+@use '@material/chips/_chip-theme';
+@use '@material/mwc-icon/_mwc-icon';
+@use '@material/mwc-ripple/_ripple-theme';
 
-/** @soyCompatible */
-@customElement('mwc-chip-set')
-export class ChipSet extends ChipSetBase {
-  static styles = style;
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'mwc-chip-set': ChipSet;
-  }
-}
+@include chip.core-styles();

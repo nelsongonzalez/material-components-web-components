@@ -14,288 +14,203 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import {BaseElement} from '@material/mwc-base/base-element';
-import {observer} from '@material/mwc-base/observer';
-import {addHasRemoveClass} from '@material/mwc-base/utils.js';
-import {ripple} from '@material/mwc-ripple/ripple-directive.js';
+
+import '@material/mwc-ripple/mwc-ripple';
+import '@material/mwc-icon/mwc-icon';
+
+import {ActionType} from '@material/chips/action/constants';
 import {MDCChipAdapter} from '@material/chips/chip/adapter.js';
+import {Events} from '@material/chips/chip/constants';
 import {MDCChipFoundation} from '@material/chips/chip/foundation.js';
-import {MDCChipInteractionEventDetail, MDCChipSelectionEventDetail, MDCChipRemovalEventDetail, MDCChipNavigationEventDetail} from '@material/chips/chip/types';
+import {MDCChipInteractionEventDetail} from '@material/chips/chip/types';
+import {MDCChipAnimationEventDetail} from '@material/chips/chip/types';
+import {MDCChipNavigationEventDetail} from '@material/chips/chip/types';
+import {BaseElement} from '@material/mwc-base/base-element';
 import {html, property, query} from 'lit-element';
-import {nothing} from 'lit-html';
-import {classMap} from 'lit-html/directives/class-map';
-import {ifDefined} from 'lit-html/directives/if-defined';
+import { ChipAction } from './mwc-chip-action';
+
+// used for generating unique id for each tab
+let chipIdCounter = 0;
 
 export class ChipBase extends BaseElement {
-  @query('.mdc-chip') protected mdcRoot!: HTMLElement;
+  @query('.mdc-evolution-chip') protected mdcRoot!: HTMLElement;
+
   protected mdcFoundation!: MDCChipFoundation;
+
   protected readonly mdcFoundationClass = MDCChipFoundation;
 
-  @property()
-  label = '';
-  @property({reflect: true})
-  type?: ChipType;
-  @property({type: Boolean})
-  @observer(function(this: ChipBase, value: boolean) {
-    this._selected = value;
-    this.mdcFoundation.setSelected(value);
-  })
-  checked = false;
+  @property({type: Array}) actionTypes = [ActionType.UNSPECIFIED];
 
-  @property({type: Boolean})
-  get selected() {
-    return this._selected;
-  }
+  @property({type: Boolean}) primarySelected = false;
 
-  set selected(selected) {
-    this._selected = selected;
-    // this.mdcFoundation.setSelected(selected);
-  }
+  @query('slot[name="primary"]')
+  protected primaryActionElement!: HTMLSlotElement|null;
 
-  private _selected = false;
-
-  @property()
-  icon = '';
-  @property()
-  iconClass = 'material-icons';
-  @property({type: Boolean})
-  @observer(function(this: ChipBase, value: boolean) {
-    this.mdcFoundation.setShouldRemoveOnTrailingIconClick(value);
-  })
-  removable = false;
-  @property()
-  removeIcon = 'close';
-  @property()
-  removeIconClass = 'material-icons';
-  @property({type: Boolean})
-  removeIconFocusable = false;
-
-  @query(MDCChipFoundation.strings.LEADING_ICON_SELECTOR)
-  protected leadingIconElement!: HTMLElement | null;
-  @query(MDCChipFoundation.strings.CHECKMARK_SELECTOR)
-  protected checkmarkElement!: HTMLElement | null;
-  @query(MDCChipFoundation.strings.PRIMARY_ACTION_SELECTOR)
-  protected primaryActionElement!: HTMLElement | null;
-  @query(MDCChipFoundation.strings.TRAILING_ACTION_SELECTOR)
-  protected trailingActionElement!: HTMLElement | null;
+  @query('slot[name="trailing"]')
+  protected trailingActionElement!: HTMLElement|null;
 
   protected createAdapter(): MDCChipAdapter {
     return {
-      ...addHasRemoveClass(this.mdcRoot),
-      addClassToLeadingIcon: (className: string) => {
-        if (this.leadingIconElement) {
-          this.leadingIconElement.classList.add(className);
+      addClass: (className) => {
+        this.mdcRoot.classList.add(className);
+      },
+
+      emitEvent: (eventName, eventDetail) => {
+        // TODO implement
+        console.log(eventName, eventDetail);
+        switch (eventName) {
+          case Events.INTERACTION: {
+            const detail = eventDetail as MDCChipInteractionEventDetail;
+            console.log(detail);
+            this.dispatchEvent(new CustomEvent(
+              Events.INTERACTION, {detail, bubbles: true, composed: true}));
+            break;
+          }
+          case Events.ANIMATION: {
+            const detail = eventDetail as MDCChipAnimationEventDetail;
+            console.log(detail);
+            this.dispatchEvent(new CustomEvent(
+              Events.ANIMATION, {detail, bubbles: true, composed: true}));
+            break;
+          }
+          case Events.NAVIGATION: {
+            const detail = eventDetail as MDCChipNavigationEventDetail;
+            console.log(detail);
+            this.dispatchEvent(new CustomEvent(
+              Events.NAVIGATION, {detail, bubbles: true, composed: true}));
+            break;
+          }
         }
       },
-      removeClassFromLeadingIcon: (className) => {
-        if (this.leadingIconElement) {
-          this.leadingIconElement.classList.remove(className);
+
+      getActions: () => {
+        return this.actionTypes;
+      },
+
+      getElementID: () => {
+        return this.mdcRoot.id;
+      },
+
+      getOffsetWidth: () => {
+        return this.mdcRoot.offsetWidth;
+      },
+
+      hasClass: (className) => {
+        return this.mdcRoot.classList.contains(className);
+      },
+
+      isActionSelectable: (action) => {
+        if (action === ActionType.PRIMARY) {
+          if (this.primaryActionElement instanceof ChipAction) {
+            return (this.primaryActionElement as ChipAction).selectable;
+          }
+        }
+        return false;
+      },
+
+      isActionSelected: (action) => {
+        if (action === ActionType.PRIMARY) {
+          if (this.primaryActionElement instanceof ChipAction) {
+            return this.primarySelected;
+          }
+        }
+        return false;
+      },
+
+      isActionFocusable: (action) => {
+        if (action === ActionType.PRIMARY) {
+          return true;
+        }
+        return false;
+      },
+
+      isActionDisabled: (_action) => {
+        return false;
+      },
+
+      removeClass: (className) => {
+        this.mdcRoot.classList.remove(className);
+      },
+
+      setActionDisabled: (_action, _isDisabled) => {},
+
+      setActionFocus: (_action, _behavior) => {},
+
+      setActionSelected: (action, isSelected) => {
+        if (action === ActionType.PRIMARY) {
+          this.primarySelected = isSelected;
         }
       },
-      eventTargetHasClass: (target, className) => target ? (target as Element).classList.contains(className) : false,
-      notifyInteraction: () => {
-        const detail: MDCChipInteractionEventDetail = {chipId: this.id};
-        this.dispatchEvent(new CustomEvent(MDCChipFoundation.strings.INTERACTION_EVENT, {
-          detail,
-          bubbles: true,
-          composed: true
-        }));
-      },
-      notifySelection: (selected, shouldIgnore) => {
-        const detail: MDCChipSelectionEventDetail = {chipId: this.id, selected, shouldIgnore};
-        this.dispatchEvent(new CustomEvent(MDCChipFoundation.strings.SELECTION_EVENT, {
-          detail,
-          bubbles: true,
-          composed: true
-        }));
-      },
-      notifyTrailingIconInteraction: () => {
-        const detail: MDCChipInteractionEventDetail = {chipId: this.id};
-        this.dispatchEvent(new CustomEvent(MDCChipFoundation.strings.TRAILING_ICON_INTERACTION_EVENT, {
-          detail,
-          bubbles: true,
-          composed: true
-        }));
-      },
-      notifyRemoval: () => this.dispatchRemovalEvent(),
-      notifyNavigation: (key, source) => {
-        const detail: MDCChipNavigationEventDetail = {chipId: this.id, key, source};
-        this.dispatchEvent(new CustomEvent(MDCChipFoundation.strings.NAVIGATION_EVENT, {
-          detail,
-          bubbles: true,
-          composed: true
-        }));
-      },
-      getComputedStyleValue: (propertyName) => getComputedStyle(this.mdcRoot).getPropertyValue(propertyName),
-      setStyleProperty: (propertyName, value) => this.mdcRoot.style.setProperty(propertyName, value),
-      hasLeadingIcon: () => !!this.leadingIconElement,
-      getRootBoundingClientRect: () => this.mdcRoot.getBoundingClientRect(),
-      getCheckmarkBoundingClientRect: () => this.checkmarkElement && this.checkmarkElement.getBoundingClientRect(),
-      setPrimaryActionAttr: (attr, value) => {
-        if (this.primaryActionElement) {
-          this.primaryActionElement.setAttribute(attr, value);
-        }
-      },
-      focusPrimaryAction: () => {
-        if (this.primaryActionElement) {
-          this.primaryActionElement.focus();
-        }
-      },
-      // hasTrailingAction: () => !!this.trailingActionElement,
-      /* setTrailingActionAttr: (attr, value) => {
-        if (this.trailingActionElement) {
-          this.trailingActionElement.setAttribute(attr, value);
-        }
-      }, */
-      focusTrailingAction: () => {
-        if (this.trailingActionElement) {
-          this.trailingActionElement.focus();
-        }
-      },
+
+      setStyleProperty: (propertyName, value) =>
+          this.mdcRoot.style.setProperty(propertyName, value),
+
       getAttribute: (name: string) => this.mdcRoot.getAttribute(name),
-      notifyEditStart: () => {},
-      notifyEditFinish: () => {},
-      removeTrailingActionFocus: () => {},
-      isTrailingActionNavigable: () => false,
-      isRTL: () => getComputedStyle(this.mdcRoot).direction === 'rtl'
+
+      isRTL: () => getComputedStyle(this.mdcRoot).direction === 'rtl',
     };
   }
 
-  focusPrimaryAction() {
-    this.mdcFoundation.focusPrimaryAction();
+  focusPrimaryAction(actionType, focusBehavior) {
+    this.mdcFoundation.setActionFocus(actionType, focusBehavior);
   }
 
-  focusTrailingAction() {
-    this.mdcFoundation.focusTrailingAction();
+  isActionFocusable(actionType): boolean {
+    return this.mdcFoundation.isActionFocusable(actionType);
   }
 
-  removeFocus() {
-    this.mdcFoundation.removeFocus();
+  isActionSelectable(actionType): boolean {
+    return this.mdcFoundation.isActionSelectable(actionType);
   }
 
-  setSelectedFromChipSet(selected: boolean, shouldNotifyClients: boolean) {
-    const oldValue = this._selected;
-    this._selected = selected;
-    this.mdcFoundation.setSelectedFromChipSet(selected, shouldNotifyClients);
-    this.requestUpdate('selected', oldValue);
+  isActionSelected(actionType): boolean {
+    return this.mdcFoundation.isActionSelected(actionType);
   }
 
-  removeWithAnimation() {
-    this.mdcFoundation.beginExit();
+  setActionFocus(actionType, focus) {
+    this.mdcFoundation.setActionFocus(actionType, focus);
+  }
+
+  setActionSelected(actionType, isSelected) {
+    this.mdcFoundation.setActionSelected(actionType, isSelected);
+  }
+
+  getActions(): ActionType[] {
+    return this.actionTypes;
+  }
+
+  protected firstUpdated() {
+    super.firstUpdated();
+    // create an unique id
+    this.id = this.id || `mdc-evolution-chip-${++chipIdCounter}`;
+    if (this.primaryActionElement !== null ||
+        this.trailingActionElement !== null) {
+      this.actionTypes = [];
+      if (this.primaryActionElement !== null) {
+        this.actionTypes.push(ActionType.PRIMARY);
+      }
+      if (this.trailingActionElement !== null) {
+        this.actionTypes.push(ActionType.TRAILING);
+      }
+    }
+    console.log(this.actionTypes);
   }
 
   render() {
-    const chipsetClasses = {
-      'mdc-ship-set--input': this.type === 'input',
-      'mdc-chip-set--choice': this.type === 'choice',
-      'mdc-chip-set--filter': this.type === 'filter'
-    };
-
-    const classes = {
-      'mdc-chip--selected': this.selected,
-      'mdc-chip--deletable': this.removable
-    };
-
     return html`
-      <div class="fake-chip-set ${classMap(chipsetClasses)}">
-        <div class="mdc-chip ${classMap(classes)}"
-          role="row"
-          .ripple=${ripple()}
-          @click=${this.handleClick}
-          @keydown=${this.handleKeydown}
-          @transitionend=${this.handleTransitionEnd}
-        >
-          <div class="mdc-chip__ripple"></div>
-          ${this.renderThumbnail()}
-          ${this.renderCheckmark()}
-          <span role="gridcell">
-            ${this.renderPrimaryAction()}
-          </span>
-          ${this.renderRemoveIcon()}
-        </div>
-      </div>`;
+      <span
+        class="mdc-evolution-chip mdc-evolution-chip--filter"
+        @transitionend=${this.handleTransitionEnd}
+      >
+        <slot name="primary"></slot>
+        <slot name="trailing"></slot>
+      </span>
+    `;
   }
 
-  renderLabel() {
-    return html`${this.label}`;
-  }
-
-  renderThumbnail() {
-    if (this.icon) {
-      return html`
-        <i class="mdc-chip__icon mdc-chip__icon--leading ${this.iconClass}">
-          ${this.icon}
-        </i>`;
-    } else if (this.childElementCount > 0) {
-      return html`
-        <span class="mdc-chip__icon mdc-chip__icon--leading">
-          <slot name="thumbnail"></slot>
-        </span>`;
-    } else {
-      return html``;
-    }
-  }
-
-  renderCheckmark() {
-    return html`${this.type === 'filter' ? html`
-      <span class="mdc-chip__checkmark">
-        <svg class="mdc-chip__checkmark-svg" viewBox="-2 -3 30 30">
-          <path class="mdc-chip__checkmark-path" fill="none" stroke="black" d="M1.73,12.91 8.1,19.28 22.79,4.59" />
-        </svg>
-      </span>` : nothing}`;
-  }
-
-  renderPrimaryAction() {
-    const isFilter = this.type === 'filter';
-    const role = isFilter ? 'checkbox' : 'button';
-    const ariaChecked = isFilter ? String(this.selected) : undefined;
-    return html`
-      <span class="mdc-chip__text mdc-chip__primary-action" role="${role}" tabindex="0" aria-checked="${ifDefined(ariaChecked)}">
-        ${this.renderLabel()}
-      </span>`;
-  }
-
-  renderRemoveIcon() {
-    const classes = {
-      'mdc-chip__trailing-action': this.removeIconFocusable,
-      [this.removeIconClass]: true
-    };
-
-    const icon = html`${this.removable ? html`
-      <i class="mdc-chip__icon mdc-chip__icon--trailing ${classMap(classes)}"
-        tabindex="-1"
-        role=${ifDefined(this.removeIconFocusable ? 'button' : undefined)}
-        aria-hidden=${ifDefined(this.removeIconFocusable ? undefined : 'true')}
-      >${this.removeIcon}</i>` : nothing}`;
-
-    if (this.removeIconFocusable) {
-      return html`<span role="gridcell">${icon}</span>`;
-    } else {
-      return icon;
-    }
-  }
-
-  private dispatchRemovalEvent() {
-    const detail: MDCChipRemovalEventDetail = {chipId: this.id, removedAnnouncement: ''};
-    this.dispatchEvent(new CustomEvent(MDCChipFoundation.strings.REMOVAL_EVENT, {
-      detail,
-      bubbles: true,
-      composed: true
-    }));
-  }
-
-  private handleClick() {
-    this.mdcFoundation.handleClick();
-  }
-
-  private handleTransitionEnd(e: TransitionEvent) {
-    this.mdcFoundation.handleTransitionEnd(e);
-  }
-
-  private handleKeydown(e: KeyboardEvent) {
-    this.handleClick();
-    this.mdcFoundation.handleKeydown(e);
+  private handleTransitionEnd(_e: TransitionEvent) {
+    this.mdcFoundation.handleTransitionEnd();
   }
 }
 
-export type ChipType = 'action' | 'input' | 'choice' | 'filter';
+export type ChipType = 'action'|'input'|'filter'|'choise';

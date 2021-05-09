@@ -14,29 +14,38 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import {BaseElement} from '@material/mwc-base/base-element';
-import {observer} from '@material/mwc-base/observer';
-import {addHasRemoveClass} from '@material/mwc-base/utils.js';
-import {MDCChipInteractionEvent, MDCChipSelectionEvent, MDCChipRemovalEvent, MDCChipNavigationEvent} from '@material/chips/chip/types';
+
 import {MDCChipSetAdapter} from '@material/chips/chip-set/adapter.js';
+import {Events} from '@material/chips/chip-set/constants';
 import {MDCChipSetFoundation} from '@material/chips/chip-set/foundation.js';
+import {MDCChipSetSelectionEventDetail} from '@material/chips/chip-set/types';
+import {MDCChipSetRemovalEventDetail} from '@material/chips/chip-set/types';
+import {MDCChipSetInteractionEventDetail} from '@material/chips/chip-set/types';
+import {announce} from '@material/dom/announce.js';
+import {BaseElement} from '@material/mwc-base/base-element';
 import {html, property, query} from 'lit-element';
-import {classMap} from 'lit-html/directives/class-map';
+import {ifDefined} from 'lit-html/directives/if-defined';
+
 import {ChipBase, ChipType} from './mwc-chip-base.js';
+import {Chip} from './mwc-chip.js';
 
 let chipIdCounter = 0;
 
 export class ChipSetBase extends BaseElement {
-  @query('.mdc-chip-set') protected mdcRoot!: HTMLElement;
+  @query('.mdc-evolution-chip-set') protected mdcRoot!: HTMLElement;
+
+  @query('slot') protected chipsSlot!: HTMLElement;
+
   protected mdcFoundation!: MDCChipSetFoundation;
+
   protected readonly mdcFoundationClass = MDCChipSetFoundation;
 
   @property()
-  @observer(function(this: ChipSetBase, value: ChipType) {
-    for (const chip of this.chipsArray) {
-      chip.type = value;
-    }
-  })
+  // @observer(function(this: ChipSetBase, value: ChipType) {
+  //   for (const chip of this.chipsArray) {
+  //     chip.type = value;
+  //   }
+  // })
   type?: ChipType;
 
   get chips(): ReadonlyArray<ChipBase> {
@@ -44,29 +53,96 @@ export class ChipSetBase extends BaseElement {
   }
 
   private chipsArray: ChipBase[] = [];
+
   private chipsObserver = new MutationObserver(() => this.syncChips());
 
   protected createAdapter(): MDCChipSetAdapter {
     return {
-      hasClass: addHasRemoveClass(this.mdcRoot).hasClass,
-      announceMessage: () => {},
+      announceMessage: (message) => {
+        announce(message);
+      },
+
+      emitEvent: (eventName, eventDetail) => {
+        // TODO implement
+        console.log(eventName, eventDetail);
+        switch (eventName) {
+          case Events.INTERACTION: {
+            const detail = eventDetail as MDCChipSetInteractionEventDetail;
+            this.dispatchEvent(new CustomEvent(
+                Events.INTERACTION, {detail, bubbles: true, composed: true}));
+            break;
+          }
+          case Events.REMOVAL: {
+            const detail = eventDetail as MDCChipSetRemovalEventDetail;
+            this.dispatchEvent(new CustomEvent(
+                Events.REMOVAL, {detail, bubbles: true, composed: true}));
+            break;
+          }
+          case Events.SELECTION: {
+            const detail = eventDetail as MDCChipSetSelectionEventDetail;
+            this.dispatchEvent(new CustomEvent(
+                Events.SELECTION, {detail, bubbles: true, composed: true}));
+            break;
+          }
+        }
+      },
+
+      getAttribute: (attrName) => this.mdcRoot.getAttribute(attrName),
+
+      getChipActionsAtIndex: (index) => {
+        const chip = this.chipsArray[index];
+        if (chip) {
+          return chip.getActions();
+        }
+        return [];
+      },
+
       removeChipAtIndex: (index) => {
         const chip = this.chipsArray[index];
         if (chip) {
-          if (chip.parentNode) {
-            chip.parentNode.removeChild(chip);
-          }
-
+          this.mdcRoot.removeChild(chip);
           this.chipsArray.splice(index, 1);
         }
       },
-      selectChipAtIndex: (index, isSelected, shouldNotifyClients) => {
+
+      getChipIdAtIndex: (index) => this._getChip(index).id,
+
+      isChipFocusableAtIndex: (index, actionType) => {
         const chip = this.chipsArray[index];
         if (chip) {
-          chip.setSelectedFromChipSet(isSelected, shouldNotifyClients);
+          return chip.isActionFocusable(actionType);
+        }
+        return false;
+      },
+
+      isChipSelectableAtIndex: (index, actionType) => {
+        const chip = this.chipsArray[index];
+        if (chip) {
+          return chip.isActionSelectable(actionType);
+        }
+        return false;
+      },
+
+      isChipSelectedAtIndex: (index, actionType) => {
+        const chip = this.chipsArray[index];
+        if (chip) {
+          return chip.isActionSelected(actionType);
+        }
+        return false;
+      },
+
+      startChipAnimationAtIndex: (_index, _animation) => {
+        // void
+      },
+
+      setChipSelectedAtIndex: (index, actionType, isSelected) => {
+        const chip = this.chipsArray[index];
+        if (chip) {
+          chip.setActionSelected(actionType, isSelected);
         }
       },
-      getIndexOfChipById: (chipId) => {
+
+      getChipIndexById: (chipId) => {
         for (let i = 0; i < this.chipsArray.length; i++) {
           if (this.chipsArray[i].id === chipId) {
             return i;
@@ -75,35 +151,21 @@ export class ChipSetBase extends BaseElement {
 
         return -1;
       },
-      focusChipPrimaryActionAtIndex: (index) => {
+
+      setChipFocusAtIndex: (index, actionType, focusBehavior) => {
         const chip = this.chipsArray[index];
         if (chip) {
-          chip.focusPrimaryAction();
+          chip.setActionFocus(actionType, focusBehavior);
         }
       },
-      focusChipTrailingActionAtIndex: (index) => {
-        const chip = this.chipsArray[index];
-        if (chip) {
-          this.chipsArray[index].focusTrailingAction();
-        }
-      },
-      removeFocusFromChipAtIndex: (index) => {
-        const chip = this.chipsArray[index];
-        if (chip) {
-          this.chipsArray[index].removeFocus();
-        }
-      },
-      isRTL: () => getComputedStyle(this.mdcRoot).direction === 'rtl',
-      getChipListCount: () => this.chipsArray.length
+
+      getChipCount: () => this.chipsArray.length
     };
   }
 
   connectedCallback() {
     super.connectedCallback();
-    this.chipsObserver.observe(this, {
-      childList: true,
-      subtree: true
-    });
+    this.chipsObserver.observe(this, {childList: true, subtree: true});
 
     this.syncChips();
   }
@@ -114,32 +176,30 @@ export class ChipSetBase extends BaseElement {
   }
 
   render() {
-    const classes = {
-      'mdc-ship-set--input': this.type === 'input',
-      'mdc-chip-set--choice': this.type === 'choice',
-      'mdc-chip-set--filter': this.type === 'filter'
-    };
-
+    const isFilter = this.type === 'filter';
     return html`
-      <div class="mdc-chip-set ${classMap(classes)}"
-        @MDCChip:interaction=${this.handleChipInteraction}
-        @MDCChip:navigation=${this.handleChipNavigation}
-        @MDCChip:removal=${this.handleChipRemoval}
-        @MDCChip:selection=${this.handleChipSelection}
+      <span class="mdc-evolution-chip-set"
+           role="${isFilter ? 'listbox' : 'grid'}"
+           aria-orientation="${ifDefined(isFilter ? 'horizontal' : undefined)}"
+           aria-multiselectable="${ifDefined(isFilter ? 'false' : undefined)}"
       >
-        <slot></slot>
-      </div>`;
+        <span class="mdc-evolution-chip-set__chips" role="presentation">
+          <slot></slot>
+        </span>
+      </span>`;
   }
 
   protected syncChips() {
     const chips = this.queryChips();
-    for (const chip of chips) {
-      chip.type = this.type;
+
+    chips.forEach((chip, _index) => {
+      // chip.type = this.type;
       chip.id = chip.id || this.nextChipId();
-      if (chip.selected) {
-        this.mdcFoundation.select(chip.id);
-      }
-    }
+      // if (chip.selected) {
+      //   // INFO Only supported for listbox chip sets.
+      //   this.mdcFoundation.setChipSelected(index, ActionType.PRIMARY, true);
+      // }
+    });
 
     this.chipsArray = chips;
   }
@@ -164,19 +224,32 @@ export class ChipSetBase extends BaseElement {
     return chips;
   }
 
-  private handleChipInteraction(e: MDCChipInteractionEvent) {
-    this.mdcFoundation.handleChipInteraction(e.detail);
+  // TODO(sorvell): probably want to memoize this and use a `slotChange` event
+  protected _getChips() {
+    return (this.chipsSlot as HTMLSlotElement)
+               .assignedNodes({flatten: true})
+               .filter((e: Node) => e instanceof Chip) as Chip[];
   }
 
-  private handleChipSelection(e: MDCChipSelectionEvent) {
-    this.mdcFoundation.handleChipSelection(e.detail);
+  protected _getChip(index: number) {
+    return this._getChips()[index];
   }
 
-  private handleChipRemoval(e: MDCChipRemovalEvent) {
-    this.mdcFoundation.handleChipRemoval(e.detail);
+  /*
+  @MDCChipSet:interaction=${this.handleChipInteraction}
+           @MDCChipSet:removal=${this.handleChipRemoval}
+           @MDCChipSet:selection=${this.handleChipSelection}
+   */
+
+  /* private handleChipInteraction(e: ChipInteractionEvent) {
+    this.mdcFoundation.handleChipInteraction(e);
   }
 
-  private handleChipNavigation(e: MDCChipNavigationEvent) {
-    this.mdcFoundation.handleChipNavigation(e.detail);
+  private handleChipRemoval(e: ChipNavigationEvent) {
+    this.mdcFoundation.handleChipNavigation(e);
   }
+
+  private handleChipSelection(e: ChipAnimationEvent) {
+    this.mdcFoundation.handleChipAnimation(e);
+  } */
 }

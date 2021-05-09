@@ -15,10 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-@import '@material/chips/chip/mdc-chip.scss';
-@import '@material/mwc-icon/_mwc-icon.scss';
+// @import '@material/chips/_chip.scss';
+@use '@material/chips/chip';
+@use '@material/chips/chip-theme';
+@use '@material/mwc-icon/_mwc-icon';
+@use '@material/mwc-ripple/ripple-theme';
 
-@include mdc-ripple-common(mdc-feature-all());
+@include chip.core-styles();
+// @include mdc-ripple-common(mdc-feature-all());
 
 :host {
   /* See mwc-icon-button.scss for explanation. */

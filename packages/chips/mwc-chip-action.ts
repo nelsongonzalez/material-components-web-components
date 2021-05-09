@@ -16,17 +16,16 @@ limitations under the License.
 */
 import {customElement} from 'lit-element';
 
-import {ChipSetBase} from './mwc-chip-set-base.js';
-import {style} from './mwc-chip-set-css.js';  // TODO: split chip-set and chip styles in MDC
+import {ChipActionBase} from './mwc-chip-action-base.js';
+import {style} from './mwc-chip-action-css.js';
 
-/** @soyCompatible */
-@customElement('mwc-chip-set')
-export class ChipSet extends ChipSetBase {
+@customElement('mwc-chip-action')
+export class ChipAction extends ChipActionBase {
   static styles = style;
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'mwc-chip-set': ChipSet;
+    'mwc-chip-action': ChipAction;
   }
 }

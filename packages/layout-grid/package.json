@@ -1,0 +1,33 @@
+{
+  "name": "@nelsongonzalez/mwc-layout-grid",
+  "version": "0.21.0",
+  "description": "Material Design layout grid web component",
+  "keywords": [
+    "material design",
+    "web component",
+    "layout grid"
+  ],
+  "main": "mwc-layout-grid.js",
+  "module": "mwc-layout-grid.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nelsongonzalez/material-components-web-components.git",
+    "directory": "packages/chips"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nelson González",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@material/layout-grid": "=12.0.0-canary.197f64fa2.0",
+    "lit-element": "~2.4.0",
+    "lit-html": "^1.1.2"
+  },
+  "devDependencies": {
+    "@material/layout-grid": "=12.0.0-canary.197f64fa2.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}

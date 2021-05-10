@@ -72,6 +72,7 @@
     {"path": "packages/icon"},
     {"path": "packages/icon-button"},
     {"path": "packages/icon-button-toggle"},
+    {"path": "packages/layout-grid"},
     {"path": "packages/line-ripple"},
     {"path": "packages/linear-progress"},
     {"path": "packages/list"},

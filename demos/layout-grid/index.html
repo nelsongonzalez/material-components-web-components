@@ -1,0 +1,140 @@
+<!doctype html>
+<!--
+@license
+Copyright 2018 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<html lang="en">
+<head>
+  <title>MWC Layout grid Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" as="style" type="text/css">
+  <link rel="preload" href="https://fonts.googleapis.com/css?family=Material+Icons&display=block" as="style" type="text/css">
+  <script type="module" src="index.js"></script>
+  <script nomodule src="../../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+  <script nomodule src="index.es5.js"></script>
+  <style>
+    .unresolved main {
+      opacity: 0;
+    }
+  </style>
+  <link href="../shared/shared.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons&display=block" rel="stylesheet">
+  <style>
+    .styled {
+      background-color: #363636;
+      display: flex;
+
+      --mdc-theme-secondary: #ff2929;
+      --mdc-checkbox-unchecked-color: white;
+      /* Required for unchecked focus ripple */
+      --mdc-theme-on-surface: white;
+      --mdc-checkbox-disabled-color: #adadad;
+      --mdc-checkbox-mark-color: #363636;
+    }
+
+    .styled.demo-group {
+      display: inline-block;
+    }
+
+    mwc-layout-grid-cell {
+      background-color: #0003;
+    }
+  </style>
+</head>
+<body class="unresolved">
+  <demo-header component="Layout Grid" package="layout-grid"></demo-header>
+
+  <main>
+    <div>
+      <h1>Default</h1>
+      <mwc-layout-grid>
+        <mwc-layout-grid-inner>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell>phone 4, tablet 4, desktop 4</mwc-layout-grid-cell>
+        </mwc-layout-grid-inner>
+      </mwc-layout-grid>
+
+      <h1>Basic</h1>
+      <mwc-layout-grid>
+        <mwc-layout-grid-inner>
+          <mwc-layout-grid-cell phone="2" tablet="2" desktop="3">phone 2, tablet 2, desktop 3</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell phone="2" tablet="2" desktop="3">phone 2, tablet 2, desktop 3</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell phone="2" tablet="2" desktop="3">phone 2, tablet 2, desktop 3</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell phone="2" tablet="2" desktop="3">phone 2, tablet 2, desktop 3</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell phone="2" tablet="2" desktop="3">phone 2, tablet 2, desktop 3</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell phone="2" tablet="2" desktop="3">phone 2, tablet 2, desktop 3</mwc-layout-grid-cell>
+        </mwc-layout-grid-inner>
+      </mwc-layout-grid>
+
+      <h1>Advanced</h1>
+      <mwc-layout-grid fixedColumnWidth>
+        <mwc-layout-grid-inner>
+          <mwc-layout-grid-cell phone="2" tablet="4" desktop="3">
+            <mwc-layout-grid-inner>
+              <mwc-layout-grid-cell phone="4" tablet="4" desktop="6">phone 4, tablet 4, desktop 6</mwc-layout-grid-cell>
+              <mwc-layout-grid-cell phone="4" tablet="4" desktop="6">phone 4, tablet 4, desktop 6</mwc-layout-grid-cell>
+              <mwc-layout-grid-cell phone="4" tablet="4" desktop="6">phone 4, tablet 4, desktop 6</mwc-layout-grid-cell>
+            </mwc-layout-grid-inner>
+          </mwc-layout-grid-cell>
+          <mwc-layout-grid-cell phone="2" tablet="4" desktop="9">phone 2, tablet 4, desktop 9</mwc-layout-grid-cell>
+        </mwc-layout-grid-inner>
+      </mwc-layout-grid>
+
+      <h1>Position</h1>
+      <mwc-layout-grid position="right" style="max-width: 800px;">
+        <mwc-layout-grid-inner style="min-height: 60px;">
+          <mwc-layout-grid-cell span="12">
+            <mwc-layout-grid-inner style="min-height: 60px;">
+              <mwc-layout-grid-cell position="top" style="max-height: 20px; background-color: #0003;">1</mwc-layout-grid-cell>
+              <mwc-layout-grid-cell position="middle" style="max-height: 20px; background-color: #0003;">2</mwc-layout-grid-cell>
+              <mwc-layout-grid-cell position="bottom" style="max-height: 20px; background-color: #0003;">3</mwc-layout-grid-cell>
+            </mwc-layout-grid-inner>
+          </mwc-layout-grid-cell>
+        </mwc-layout-grid-inner>
+      </mwc-layout-grid>
+
+      <h1>Order</h1>
+      <mwc-layout-grid>
+        <mwc-layout-grid-inner>
+          <mwc-layout-grid-cell span="1" order="12">cell 1</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell span="1" order="11">cell 2</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell span="1" order="10">cell 3</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell span="1" order="9">cell 4</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell span="1" order="8">cell 5</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell span="1" order="7">cell 6</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell span="1" order="6">cell 7</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell span="1" order="5">cell 8</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell span="1" order="4">cell 9</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell span="1" order="3">cell 10</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell span="1" order="2">cell 11</mwc-layout-grid-cell>
+          <mwc-layout-grid-cell span="1" order="1">cell 12</mwc-layout-grid-cell>
+        </mwc-layout-grid-inner>
+      </mwc-layout-grid>
+    </div>
+  </main>
+</body>
+</html>

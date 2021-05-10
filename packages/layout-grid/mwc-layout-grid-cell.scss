@@ -1,0 +1,64 @@
+@use 'sass:list';
+@use 'sass:map';
+@use '@material/layout-grid/_variables';
+@use '@material/layout-grid/_mixins';
+
+// select the upper breakpoint
+$upper-breakpoint: list.nth(map.keys(variables.$columns), 1);
+
+:host {
+  display: block;
+
+  @each $size in map.keys(variables.$columns) {
+    --mdc-layout-grid-margin-#{$size}: #{map.get(
+        variables.$default-margin,
+        $size
+      )};
+    --mdc-layout-grid-gutter-#{$size}: #{map.get(
+        variables.$default-gutter,
+        $size
+      )};
+    --mdc-layout-grid-column-width-#{$size}: #{map.get(
+        variables.$column-width,
+        $size
+      )};
+  }
+
+  @each $size in map.keys(variables.$columns) {
+    @include mixins.media-query_($size) {
+      $gutter: map.get(variables.$default-gutter, $size);
+
+      @include mixins.cell($size, variables.$default-column-span, $gutter);
+
+      @for $span from 1 through map.get(variables.$columns, $upper-breakpoint) {
+        // Span classes.
+        // stylelint-disable max-nesting-depth
+        @at-root :host([span="#{$span}"]),
+          :host([#{$size}="#{$span}"]) {
+          @include mixins.cell-span_($size, $span, $gutter);
+        }
+        // stylelint-enable max-nesting-depth
+      }
+    }
+  }
+}
+
+// Order override classes.
+@for $i from 1 through map.get(variables.$columns, $upper-breakpoint) {
+  :host([order="#{$i}"]) {
+    @include mixins.cell-order($i);
+  }
+}
+
+// Alignment classes.
+:host([position="top"]) {
+  @include mixins.cell-align(top);
+}
+
+:host([position="middle"]) {
+  @include mixins.cell-align(middle);
+}
+
+:host([position="bottom"]) {
+  @include mixins.cell-align(bottom);
+}

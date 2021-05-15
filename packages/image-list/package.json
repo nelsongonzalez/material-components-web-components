@@ -1,0 +1,37 @@
+{
+  "name": "@nelsongonzalez/mwc-image-list",
+  "version": "0.21.0",
+  "description": "Material Design image list web component",
+  "keywords": [
+    "material design",
+    "web component",
+    "image list"
+  ],
+  "main": "mwc-image-list.js",
+  "module": "mwc-image-list.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nelsongonzalez/material-components-web-components.git",
+    "directory": "packages/chips"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nelson González",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@material/image-list": "=12.0.0-canary.197f64fa2.0",
+    "lit-element": "~2.4.0",
+    "lit-html": "^1.1.2"
+  },
+  "devDependencies": {
+    "@material/image-list": "=12.0.0-canary.197f64fa2.0",
+    "@material/feature-targeting": "=12.0.0-canary.197f64fa2.0",
+    "@material/theme": "=12.0.0-canary.197f64fa2.0",
+    "@material/shape": "=12.0.0-canary.197f64fa2.0",
+    "@material/typography": "=12.0.0-canary.197f64fa2.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}

@@ -1,0 +1,73 @@
+@use 'sass:list';
+@use 'sass:map';
+@use '@material/feature-targeting/feature-targeting';
+@use '@material/shape/mixins' as shape-mixins;
+@use '@material/shape/functions' as shape-functions;
+@use '@material/theme/theme';
+@use '@material/typography/typography';
+@use '@material/image-list/_variables';
+@use '@material/image-list/_mixins';
+
+@mixin core-styles($query: feature-targeting.all()) {
+  $feat-color: feature-targeting.create-target($query, color);
+  $feat-structure: feature-targeting.create-target($query, structure);
+
+  :host {
+    @include feature-targeting.targets($feat-structure) {
+      // Supports absolute positioning of protected supporting content for item, and image for image-aspect-container
+      position: relative;
+      box-sizing: border-box;
+      // from <div>
+      display: block;
+    }
+  }
+
+  ::slotted(img) {
+    @include feature-targeting.targets($feat-structure) {
+      width: 100%;
+    }
+  }
+
+  // Descendant selector allows image-aspect-container to be optional in DOM structure
+  :host ::slotted(img) {
+    @include feature-targeting.targets($feat-structure) {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 100%;
+      // Background styles to support div instead of img
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+    }
+  }
+
+  @include aspect(1, $query: $query);
+  @include shape-radius(variables.$shape-radius, $query: $query);
+
+  // postcss-bem-linter: end
+}
+
+@mixin aspect($width-height-ratio, $query: feature-targeting.all()) {
+  $feat-structure: feature-targeting.create-target($query, structure);
+
+  :host {
+    @include feature-targeting.targets($feat-structure) {
+      padding-bottom: calc(100% / #{$width-height-ratio});
+    }
+  }
+}
+
+@mixin shape-radius(
+  $radius,
+  $rtl-reflexive: false,
+  $query: feature-targeting.all()
+) {
+  ::slotted(img) {
+    @include shape-mixins.radius($radius, $rtl-reflexive, $query: $query);
+  }
+}
+
+@include core-styles;

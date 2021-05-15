@@ -161,6 +161,12 @@ class DemoView extends LitElement {
         img: 'https://material-components-web.appspot.com/images/ic_component_24px.svg',
       },
       {
+        name: 'Image List',
+        secondary: 'Image list',
+        href: 'image-list/',
+        img: 'https://fonts.gstatic.com/s/i/materialicons/view_list/v6/24px.svg',
+      },
+      {
         name: 'Layout Grid',
         secondary: 'Layout grid',
         href: 'layout-grid/',

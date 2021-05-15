@@ -23,6 +23,7 @@ const packageNames = [
   'icon',
   'icon-button',
   'icon-button-toggle',
+  'image-list',
   'layout-grid',
   'linear-progress',
   'list',

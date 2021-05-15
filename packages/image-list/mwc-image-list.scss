@@ -1,0 +1,27 @@
+@use 'sass:list';
+@use 'sass:map';
+@use '@material/feature-targeting/feature-targeting';
+@use '@material/shape/mixins' as shape-mixins;
+@use '@material/shape/functions' as shape-functions;
+@use '@material/theme/theme';
+@use '@material/typography/typography';
+@use '@material/image-list/_variables';
+@use '@material/image-list/_mixins';
+
+@mixin core-styles($query: feature-targeting.all()) {
+  $feat-color: feature-targeting.create-target($query, color);
+  $feat-structure: feature-targeting.create-target($query, structure);
+
+  // postcss-bem-linter: define image-list
+  :host {
+    @include feature-targeting.targets($feat-structure) {
+      display: flex;
+      flex-wrap: wrap;
+      // Margin and padding are set to override default user agent styles for lists, and also to center the Image List
+      margin: 0 auto;
+      padding: 0;
+    }
+  }
+}
+
+@include core-styles

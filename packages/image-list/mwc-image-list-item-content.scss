@@ -22,14 +22,14 @@
     }
   }
 
-  ::slotted(img) {
+  ::slotted(*) {
     @include feature-targeting.targets($feat-structure) {
       width: 100%;
     }
   }
 
   // Descendant selector allows image-aspect-container to be optional in DOM structure
-  :host ::slotted(img) {
+  :host ::slotted(*) {
     @include feature-targeting.targets($feat-structure) {
       position: absolute;
       top: 0;
@@ -65,7 +65,7 @@
   $rtl-reflexive: false,
   $query: feature-targeting.all()
 ) {
-  ::slotted(img) {
+  ::slotted(*) {
     @include shape-mixins.radius($radius, $rtl-reflexive, $query: $query);
   }
 }

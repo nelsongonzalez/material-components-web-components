@@ -49,6 +49,17 @@ limitations under the License.
     .styled.demo-group {
       display: inline-block;
     }
+
+    picture source, picture img {
+      position: absolute;
+      inset: 0px;
+      height: 100%;
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+      border-radius: 0px;
+      width: 100%;
+    }
   </style>
 </head>
 <body class="unresolved">
@@ -60,12 +71,22 @@ limitations under the License.
       <mwc-image-list>
         <mwc-image-list-item>
           <mwc-image-list-item-content>
-            <img src="https://live.staticflickr.com/2172/2407030202_7bd91d4ab1_b.jpg" />
-          </mwc-image-list-item-content>
-        </mwc-image-list-item>
-        <mwc-image-list-item>
-          <mwc-image-list-item-content>
-            <img src="https://live.staticflickr.com/2172/2407030202_7bd91d4ab1_b.jpg" />
+            <picture>
+              <source
+                type="image/jpeg"
+                srcset="
+                https://live.staticflickr.com/2172/2407030202_7bd91d4ab1_b.jpg  1x
+                "
+              />
+
+              <img
+                src="https://live.staticflickr.com/2172/2407030202_7bd91d4ab1_b.jpg"
+                srcset="
+                https://live.staticflickr.com/2172/2407030202_7bd91d4ab1_b.jpg   1x
+                "
+                alt="Advertisement"
+              />
+            </picture>
           </mwc-image-list-item-content>
         </mwc-image-list-item>
         <mwc-image-list-item>

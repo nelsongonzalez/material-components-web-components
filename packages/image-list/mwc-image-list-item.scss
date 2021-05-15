@@ -26,30 +26,64 @@
     }
   }
 
+  :host .mdc-image-list__image-aspect-container {
+    @include feature-targeting.targets($feat-structure) {
+      // Supports absolute positioning of protected supporting content for item, and image for image-aspect-container
+      position: relative;
+      box-sizing: border-box;
+      // from <div>
+      display: block;
+    }
+  }
+
+  :host .mdc-image-list__image-aspect-container ::slotted(*) {
+    @include feature-targeting.targets($feat-structure) {
+      width: 100%;
+    }
+  }
+
+  // Descendant selector allows image-aspect-container to be optional in DOM structure
+  :host .mdc-image-list__image-aspect-container ::slotted(*) {
+    @include feature-targeting.targets($feat-structure) {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 100%;
+      // Background styles to support div instead of img
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+    }
+  }
+
+  @include aspect(1, $query: $query);
+  @include shape-radius(variables.$shape-radius, $query: $query);
+
   // postcss-bem-linter: end
 }
 
-// Standard Image List
-
-@mixin standard-columns(
-  $column-count,
-  $gutter-size: variables.$standard-gutter-size,
-  $query: feature-targeting.all()
-) {
+@mixin aspect($width-height-ratio, $query: feature-targeting.all()) {
   $feat-structure: feature-targeting.create-target($query, structure);
 
-  // This uses margin rather than padding to facilitate properly positioning the supporting content element when
-  // --with-text-protection is used.
-  :host {
+  :host .mdc-image-list__image-aspect-container {
     @include feature-targeting.targets($feat-structure) {
-      // Subtract extra fraction from each item's width to ensure correct wrapping in IE/Edge which round differently
-      width: calc(
-        100% / #{$column-count} - #{$gutter-size + 1 / $column-count}
-      );
-      margin: $gutter-size / 2;
+      padding-bottom: calc(100% / #{$width-height-ratio});
     }
   }
 }
 
+@mixin shape-radius(
+  $radius,
+  $rtl-reflexive: false,
+  $query: feature-targeting.all()
+) {
+  :host .mdc-image-list__image-aspect-container ::slotted(*) {
+    @include shape-mixins.radius($radius, $rtl-reflexive, $query: $query);
+  }
+}
+
+// Standard Image List
+
 @include core-styles;
-@include standard-columns(4);

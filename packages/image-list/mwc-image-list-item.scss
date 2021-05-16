@@ -58,16 +58,17 @@
     }
   }
 
-  @include aspect(1, $query: $query);
+  @include aspect('1:1', 1, $query: $query);
+  @include aspect('16:9', 1.77, $query: $query);
   @include shape-radius(variables.$shape-radius, $query: $query);
 
   // postcss-bem-linter: end
 }
 
-@mixin aspect($width-height-ratio, $query: feature-targeting.all()) {
+@mixin aspect($aspect-class, $width-height-ratio, $query: feature-targeting.all()) {
   $feat-structure: feature-targeting.create-target($query, structure);
 
-  :host .mdc-image-list__image-aspect-container {
+  :host([aspect="#{$aspect-class}"]) .mdc-image-list__image-aspect-container {
     @include feature-targeting.targets($feat-structure) {
       padding-bottom: calc(100% / #{$width-height-ratio});
     }

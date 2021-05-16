@@ -255,3 +255,37 @@ npm run watch:tests
 # another terminal (persistent) - debug tests
 npm run test:debug -- --autoWatch --packages <comma sepaarated package names> # e.g. mwc-switch,mwc-text*
 ```
+
+## Publish
+
+clear .npmrc content
+
+```
+find . -type d -name "node_modules" -exec rm -rf {} +
+npm install
+npm run build
+```
+
+GitHub.com -> Settings -> Developer settings -> Personal access tokens -> Generate new token
+node: Publish material-components-web-components
+scope: write:packages
+
+copy the token
+
+// .npmrc
+// ```
+// //npm.pkg.github.com/:_authToken=[token]
+// ```
+
+// .yarnrc
+// ```
+// "@nelsongonzalez:registry" "https://npm.pkg.github.com"
+// ```
+
+npm login --scope=@nelsongonzalez --registry=https://npm.pkg.github.com
+Username: nelsongonzalez
+Password: [token]
+Email: ******
+
+cd packages/image-list
+npm publish
